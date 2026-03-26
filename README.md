@@ -1,36 +1,55 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🚀 One-Vantage AI: Autonomous Predictive Liquidity Strategist
 
-## Getting Started
+**Winner / Submission for the OneChain Hackathon**
 
-First, run the development server:
+One-Vantage AI is a hands-free DeFi strategist that autonomously manages and protects your liquidity. It uses a multi-agent debate engine to continuously monitor real-time data from OneDEX and OnePredict, making dynamic, atomic rebalancing decisions tailored to your exact risk profile.
 
+![One-Vantage AI Dashboard](https://via.placeholder.com/1200x600.png?text=One-Vantage+AI+Dashboard)
+
+## 💡 The Problem
+Providing liquidity in DeFi is a full-time job. Users manually chase APY across pools only to get wiped out by sudden volatility and impermanent loss. Existing "set-and-forget" auto-compounding vaults are entirely static, leaving capital exposed during market crashes.
+
+## 🎯 Our Solution
+A predictive, autonomous agent specifically optimized for the OneChain ecosystem. 
+- **User Intent:** The user connects their wallet via OneID and sets strict boundaries ("Max 80% rebalance", "Move to stablecoins if risky").
+- **3-Agent Debate Engine:** Our backend utilizes three specialized agents (*Yield Hunter*, *Risk Guardian*, and *Stability AI*) that debate the risk-adjusted value of every pool based on live APY and volatility forecasts.
+- **PTB Atomic Execution:** When the AI reaches a consensus, it builds a Programmable Transaction Block (PTB). This executes the `withdraw -> swap -> deposit` path flawlessly in a single block. If one step fails (e.g., unexpected slippage), the entire atomic block reverts—no stuck funds ever.
+
+## ✨ Key Features
+- **Live Market Radar:** A 4-axis real-time charting engine scoring pools on APY, Safety, Confidence, and Liquidity.
+- **Volatility Circuit Breaker:** "Safe Haven" feature that detects high market risk via OnePredict and automatically sweeps capital into stablecoin pools (USDC/USDO) to avoid impermanent loss.
+- **Explainable AI (OneBox):** DeFi is built on trust. We don't just move your money; the AI Debate Panel outputs a plain-English explanation of exactly *why* a trade was executed.
+- **Performance Sandbox:** A 30-day simulated backtester comparing the dynamic AI strategy against a static "hold-and-pray" strategy.
+
+## 🛠 Tech Stack
+- **Frontend:** Next.js (App Router), React, Tailwind CSS, Recharts
+- **Backend Analytics Engine:** Node.js, Express
+- **Integration Layer:** Simulated OneChain DApp Kit, OneDEX API, OnePredict API
+- **Execution:** Custom PTB Builder logic mimicking native OneChain atomic execution.
+
+## 🚀 Run It Locally
+
+### Prerequisites
+- Node.js (v18+)
+- npm or yarn
+
+### Setup the Backend (AI Engine)
 ```bash
+cd backend
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
+The strategy engine will run on http://localhost:5000.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Setup the Frontend (Dashboard)
+Open a new terminal session at the root of the project:
+```bash
+npm install
+npm run dev
+```
+Visit **http://localhost:3000** to interact with the autonomous strategist!
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🔮 What's Next? (Post-Hackathon Roadmap)
+1. **Account Abstraction Integration:** Migrate our simulated execution models to real, permissioned Smart Contract Meta-Vaults using OneChain's AA primitives, so users can deposit actual funds without sacrificing security.
+2. **On-Chain Agent Verification:** Publish the AI Agent's scoring weights and daily decisions on-chain for verifiability.
+3. **Cross-Chain Expansion:** Allow the Yield Hunter agent to sniff out cross-chain APY opportunities extending beyond OneChain via decentralized bridges.
