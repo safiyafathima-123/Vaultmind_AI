@@ -2,8 +2,10 @@
 "use client";
 
 import { useState } from "react";
+import { useSignAndExecuteTransaction } from "@onelabs/dapp-kit";
+import { Transaction } from "@onelabs/sui/transactions";
 import { Pool, UserProfile, PTBTransaction, PTBResult, PTBStep } from "@/lib/types";
-import { buildPTB, simulateExecution, stepLabel } from "@/lib/ptbBuilder";
+import { buildPTB, stepLabel } from "@/lib/ptbBuilder";
 
 interface PTBExecutorProps {
   pools: Pool[];
@@ -32,10 +34,12 @@ export default function PTBExecutor({ pools, profile }: PTBExecutorProps) {
   const [toPoolId,   setToPoolId]   = useState(pools[2]?.id ?? "");
   const [amount,     setAmount]     = useState(1000);
 
-  const [tx,       setTx]       = useState<PTBTransaction | null>(null);
-  const [result,   setResult]   = useState<PTBResult | null>(null);
-  const [phase,    setPhase]    = useState<"idle"|"built"|"executing"|"done">("idle");
+  const [tx,        setTx]        = useState<PTBTransaction | null>(null);
+  const [result,    setResult]    = useState<PTBResult | null>(null);
+  const [phase,     setPhase]     = useState<"idle"|"built"|"executing"|"done">("idle");
   const [liveSteps, setLiveSteps] = useState<PTBStep[]>([]);
+
+  const { mutate: signAndExecute } = useSignAndExecuteTransaction();
 
   const fromPool = pools.find((p) => p.id === fromPoolId)!;
   const toPool   = pools.find((p) => p.id === toPoolId)!;
@@ -50,49 +54,63 @@ export default function PTBExecutor({ pools, profile }: PTBExecutorProps) {
     setPhase("built");
   }
 
-  // ── Step B: Execute the PTB with live step updates ─────────────────────────
+  // ── Step B: Execute the PTB via real OneChain signing ─────────────────────
   async function handleExecute() {
     if (!tx) return;
     setPhase("executing");
     setResult(null);
 
-    // Animate each step individually so the UI updates live
-    const steps = [...tx.steps];
-    for (let i = 0; i < steps.length; i++) {
-      await new Promise((r) => setTimeout(r, 950));
+    // Show steps as pending while wallet signs
+    setLiveSteps(tx.steps.map((s) => ({ ...s, status: "pending" as const })));
 
-      // 5% chance swap fails
-      const fail = steps[i].type === "swap" && Math.random() < 0.05;
-      if (fail) {
-        const reverted = steps.map((s, j) =>
-          j >= i ? { ...s, status: "reverted" as const } : s
-        );
-        setLiveSteps(reverted);
-        setResult({
-          success: false,
-          error: "Swap failed — insufficient liquidity. All steps reverted atomically.",
-          steps: reverted,
-        });
-        setPhase("done");
-        return;
-      }
-
-      const updated = steps.map((s, j) =>
-        j === i ? { ...s, status: "success" as const } : s
+    try {
+      // Build a real Move Transaction object
+      // In production replace with actual OneDEX contract calls:
+      //   transaction.moveCall({ target: "0xONEDEX::pool::withdraw", ... })
+      //   transaction.moveCall({ target: "0xONEDEX::swap::execute",  ... })
+      //   transaction.moveCall({ target: "0xONEDEX::pool::deposit",  ... })
+      const transaction = new Transaction();
+      const [coin] = transaction.splitCoins(transaction.gas, [
+        transaction.pure.u64(Math.floor(tx.totalAmount * 1000)), // demo MIST amount
+      ]);
+      transaction.transferObjects(
+        [coin],
+        transaction.pure.address(fromPool?.id?.slice(0, 66) ?? "0x0")
       );
-      steps[i] = { ...steps[i], status: "success" as const };
-      setLiveSteps([...updated]);
+
+      signAndExecute(
+        { transaction },
+        {
+          onSuccess: (data) => {
+            const allSuccess = tx.steps.map((s) => ({ ...s, status: "success" as const }));
+            setLiveSteps(allSuccess);
+            setResult({
+              success: true,
+              txHash:  data.digest,   // Real on-chain transaction hash
+              gasUsed: tx.estimatedTotalGas,
+              steps:   allSuccess,
+            });
+            setPhase("done");
+          },
+          onError: (error) => {
+            const reverted = tx.steps.map((s) => ({ ...s, status: "reverted" as const }));
+            setLiveSteps(reverted);
+            setResult({
+              success: false,
+              error:   error.message ?? "Transaction failed. All steps reverted.",
+              steps:   reverted,
+            });
+            setPhase("done");
+          },
+        }
+      );
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to build transaction.";
+      const reverted = tx.steps.map((s) => ({ ...s, status: "reverted" as const }));
+      setLiveSteps(reverted);
+      setResult({ success: false, error: msg, steps: reverted });
+      setPhase("done");
     }
-
-    // All steps succeeded
-    const txHash =
-      "0x" +
-      Array.from({ length: 40 }, () =>
-        Math.floor(Math.random() * 16).toString(16)
-      ).join("");
-
-    setResult({ success: true, txHash, gasUsed: tx.estimatedTotalGas, steps });
-    setPhase("done");
   }
 
   function handleReset() {

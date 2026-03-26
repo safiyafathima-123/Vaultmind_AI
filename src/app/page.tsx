@@ -11,6 +11,7 @@ import StaticComparison from "@/components/StaticComparison";
 import SavingsTracker   from "@/components/SavingsTracker";
 import { UserProfile, loadSavedProfile } from "@/lib/types";
 import { useMarketData } from "@/lib/useMarketData";
+import { useCurrentAccount } from "@onelabs/dapp-kit";
 
 // Tab definition
 const TABS = [
@@ -24,14 +25,18 @@ const TABS = [
 type TabId = typeof TABS[number]["id"];
 
 export default function HomePage() {
-  const [profile,    setProfile]    = useState<UserProfile | null>(null);
-  const [activeTab,  setActiveTab]  = useState<TabId>("overview");
+  const [profile,   setProfile]   = useState<UserProfile | null>(null);
+  const [activeTab, setActiveTab] = useState<TabId>("overview");
   const { pools, isLoading, lastUpdated, refresh } = useMarketData();
+  const currentAccount = useCurrentAccount();
 
   useEffect(() => {
     const saved = loadSavedProfile();
     if (saved) setProfile(saved);
   }, []);
+
+  // Derive display address preferring the real connected account
+  const displayAddress = currentAccount?.address ?? profile?.address ?? "";
 
   return (
     <main className="min-h-screen bg-gray-50">
@@ -62,7 +67,7 @@ export default function HomePage() {
           )}
         </div>
 
-        {/* Tab bar — only show when connected */}
+        {/* Tab bar */}
         {profile && (
           <div className="max-w-5xl mx-auto px-5 flex gap-1 pb-0">
             {TABS.map((tab) => (
@@ -84,6 +89,7 @@ export default function HomePage() {
 
       {/* ── Body ──────────────────────────────────────────────────────────── */}
       <div className="max-w-5xl mx-auto px-5 py-6">
+
         {/* Not connected */}
         {!profile && (
           <div className="mt-24 max-w-sm mx-auto">
@@ -97,6 +103,14 @@ export default function HomePage() {
           </div>
         )}
 
+        {/* Loading state */}
+        {profile && isLoading && (
+          <div className="flex flex-col items-center justify-center mt-32 gap-3">
+            <div className="w-8 h-8 rounded-full border-2 border-purple-200 border-t-purple-600 animate-spin" />
+            <p className="text-sm text-gray-400">Loading market data...</p>
+          </div>
+        )}
+
         {/* Connected dashboard */}
         {profile && !isLoading && (
           <div className="space-y-6">
@@ -107,10 +121,15 @@ export default function HomePage() {
                 {/* Profile strip */}
                 <div className="grid grid-cols-4 gap-3">
                   {[
-                    { label: "Wallet",       value: `${profile.address.slice(0,6)}...${profile.address.slice(-4)}` },
-                    { label: "Risk level",   value: profile.riskLevel,                     },
-                    { label: "Safe haven",   value: profile.preferStablecoins ? "On" : "Off" },
-                    { label: "Max rebalance",value: `${profile.maxRebalancePercent}%`       },
+                    {
+                      label: "Wallet",
+                      value: displayAddress
+                        ? `${displayAddress.slice(0, 6)}...${displayAddress.slice(-4)}`
+                        : "—",
+                    },
+                    { label: "Risk level",    value: profile.riskLevel                          },
+                    { label: "Safe haven",    value: profile.preferStablecoins ? "On" : "Off"  },
+                    { label: "Max rebalance", value: `${profile.maxRebalancePercent}%`          },
                   ].map((item) => (
                     <div key={item.label} className="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm">
                       <p className="text-xs text-gray-400">{item.label}</p>
@@ -121,42 +140,19 @@ export default function HomePage() {
                   ))}
                 </div>
 
-                {/* Live pool table */}
                 <PoolTable />
-
-                {/* Savings snapshot */}
                 <SavingsTracker pools={pools} profile={profile} />
               </>
             )}
 
-            {/* ── MARKET RADAR TAB ────────────────────────────────────────── */}
-            {activeTab === "radar" && (
-              <MarketRadar pools={pools} />
-            )}
+            {activeTab === "radar" && <MarketRadar pools={pools} />}
 
-            {/* ── AI DEBATE TAB ───────────────────────────────────────────── */}
-            {activeTab === "debate" && (
-              <AIDebatePanel pools={pools} profile={profile} />
-            )}
+            {activeTab === "debate" && <AIDebatePanel pools={pools} profile={profile} />}
 
-            {/* ── REBALANCE TAB ───────────────────────────────────────────── */}
-            {activeTab === "rebalance" && (
-              <PTBExecutor pools={pools} profile={profile} />
-            )}
+            {activeTab === "rebalance" && <PTBExecutor pools={pools} profile={profile} />}
 
-            {/* ── PERFORMANCE TAB ─────────────────────────────────────────── */}
-            {activeTab === "performance" && (
-              <StaticComparison pools={pools} profile={profile} />
-            )}
+            {activeTab === "performance" && <StaticComparison pools={pools} profile={profile} />}
 
-          </div>
-        )}
-
-        {/* Loading state */}
-        {profile && isLoading && (
-          <div className="flex flex-col items-center justify-center mt-32 gap-3">
-            <div className="w-8 h-8 rounded-full border-2 border-purple-200 border-t-purple-600 animate-spin" />
-            <p className="text-sm text-gray-400">Loading market data...</p>
           </div>
         )}
       </div>
