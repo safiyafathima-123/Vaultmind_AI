@@ -101,7 +101,7 @@ export default function StaticComparison({ pools, profile }: StaticComparisonPro
             type="range" min={500} max={50000} step={500}
             value={principal}
             onChange={(e) => { setPrincipal(Number(e.target.value)); setRan(true); }}
-            className="w-full accent-neon-purple bg-white/5 h-1.5 rounded-full appearance-none cursor-pointer"
+            className="w-full accent-neon-purple bg-white/40 h-2 rounded-full appearance-none cursor-pointer border border-white/20 shadow-inner"
           />
         </div>
 

@@ -111,119 +111,134 @@ export default function SavingsTracker({ pools, profile }: SavingsTrackerProps) 
         </div>
       </div>
 
-      <div className="p-8 space-y-8">
+      <div className="p-8 flex flex-col gap-10">
         {/* Live alert ticker */}
-        <div className="flex items-center gap-4 px-6 py-4 bg-black/40 rounded-2xl border border-white/5 group overflow-hidden">
+        <div className="flex items-center gap-4 px-8 py-5 bg-black/40 rounded-[2rem] border border-white/5 group overflow-hidden">
           <div className="relative shrink-0">
-             <div className="w-2 h-2 rounded-full bg-neon-purple shadow-[0_0_10px_var(--neon-purple)]" />
-             <div className="absolute inset-0 w-2 h-2 rounded-full bg-neon-purple animate-ping" />
+             <div className="w-2.5 h-2.5 rounded-full bg-neon-purple shadow-[0_0_15px_var(--neon-purple)]" />
+             <div className="absolute inset-0 w-2.5 h-2.5 rounded-full bg-neon-purple animate-ping" />
           </div>
           <p
             key={alertIdx}
-            className="text-[11px] font-bold text-gray-400 italic transition-all duration-700 truncate"
+            className="text-xs font-bold text-gray-400 italic transition-all duration-700 truncate tracking-wide"
           >
             {alerts[alertIdx]}
           </p>
         </div>
 
-        {/* Primary Savings Metric */}
-        <div className="p-8 rounded-3xl bg-white/[0.03] border border-white/5 group hover:neon-border-orange smooth-transition relative overflow-hidden">
-          <div className="absolute top-0 right-0 p-6">
-             <div className="px-3 py-1 rounded-md bg-neon-orange/10 border border-neon-orange/20">
-               <span className="text-[10px] font-black text-neon-orange uppercase">+2.4% APR Edge</span>
-             </div>
+        {/* 3-Column Meta Metrics Row */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Box 1: Primary Savings Metric */}
+          <div className="p-10 rounded-[2.5rem] bg-white/[0.03] border border-white/5 group hover:border-neon-orange/40 smooth-transition relative overflow-hidden flex flex-col justify-center">
+            <div className="absolute top-0 right-0 p-8">
+               <div className="px-3 py-1.5 rounded-xl bg-neon-orange/10 border border-neon-orange/20">
+                 <span className="text-[10px] font-black text-neon-orange uppercase tracking-widest">+2.4% APR Edge</span>
+               </div>
+            </div>
+            
+            <p className="text-[10px] font-black text-gray-500 uppercase tracking-[0.3em] mb-6">Neural Yield Generated</p>
+            <div className="flex items-baseline gap-4">
+              <span className="text-6xl font-black text-white italic tracking-tighter group-hover:scale-110 smooth-transition transform origin-left">${totalBenefit.toFixed(2)}</span>
+              <span className="text-sm font-black text-neon-purple italic uppercase tracking-widest">USDC</span>
+            </div>
           </div>
-          
-          <p className="text-[10px] font-black text-gray-500 uppercase tracking-[0.3em] mb-4">Neural Yield Generated</p>
-          <div className="flex items-baseline gap-3">
-            <span className="text-5xl font-black text-white italic tracking-tighter">${totalBenefit.toFixed(2)}</span>
-            <span className="text-sm font-black text-neon-purple italic uppercase tracking-widest">USDC</span>
-          </div>
-        </div>
 
-        {/* Efficiency Breakdown */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="p-6 rounded-2xl bg-black/40 border border-white/5 group hover:border-neon-purple/30 smooth-transition">
-            <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-3">Gas Extraction</p>
-            <p className="text-2xl font-black text-neon-purple italic">${totalYieldGained.toFixed(2)}</p>
-          </div>
-          <div className="p-6 rounded-2xl bg-black/40 border border-white/5 group hover:border-neon-orange/30 smooth-transition">
-            <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-3">Risk Mitigation</p>
-            <p className="text-2xl font-black text-neon-orange italic">${totalLossAvoided.toFixed(2)}</p>
-          </div>
-        </div>
-
-        {/* Progress to target */}
-        <div className="p-6 rounded-2xl border border-white/5 bg-black/20">
-          <div className="flex justify-between items-end mb-5">
-            <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Monthly Efficiency Target</span>
-            <span className="text-xs font-black text-white italic tracking-widest">$1,000.00</span>
-          </div>
-          <div className="h-2.5 bg-black rounded-full overflow-hidden border border-white/5 shadow-inner">
-            <div
-              className="h-full bg-gradient-to-r from-neon-purple to-neon-orange rounded-full smooth-transition shadow-[0_0_15px_rgba(191,0,255,0.4)]"
-              style={{ width: `${Math.min((totalBenefit / 1000) * 100, 100)}%` }}
-            />
-          </div>
-          <div className="flex justify-between mt-4">
-             <span className="text-[10px] font-black text-neon-purple uppercase italic tracking-widest">
-               {Math.round((totalBenefit / 1000) * 100)}% Synchronized
-             </span>
-             <span className="text-[9px] font-black text-gray-600 uppercase">OneChain Mainnet Consensus</span>
-          </div>
-        </div>
-
-        {/* Timeline Header */}
-        <div className="flex items-center justify-between pt-4">
-          <p className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em]">Autonomous Timeline</p>
-          <button className="text-[10px] font-black text-neon-purple uppercase tracking-widest flex items-center gap-2 hover:text-white smooth-transition group">
-            FULL LOGS <ChevronRight className="w-3 h-3 group-hover:translate-x-1 smooth-transition" />
-          </button>
-        </div>
-
-        {/* Event history */}
-        <div className="space-y-4">
-          {history.map((evt) => {
-            const meta = ACTION_LABELS[evt.action];
-            const Icon = meta.icon;
-            return (
-              <div
-                key={evt.id}
-                className="flex gap-5 p-5 rounded-3xl border border-white/5 bg-black/40 hover:bg-white/[0.04] smooth-transition group"
-              >
-                {/* Action icon */}
-                <div className={`w-12 h-12 rounded-2xl flex-shrink-0 flex items-center justify-center smooth-transition border ${evt.action === 'rebalance' ? 'bg-neon-purple/10 border-neon-purple/20 text-neon-purple' : 'bg-neon-orange/10 border-neon-orange/20 text-neon-orange'} group-hover:scale-110 shadow-lg`}>
-                  <Icon className="w-6 h-6" />
-                </div>
-                {/* Detail */}
-                <div className="flex-1 min-w-0 flex flex-col justify-center">
-                  <p className="text-[11px] font-bold text-gray-300 leading-relaxed mb-2 italic">
-                    {evt.explanation}
-                  </p>
-                  <div className="flex items-center gap-4">
-                    <span className="text-[9px] font-black text-gray-600 uppercase tracking-tighter">
-                      {evt.fromPool} <ArrowRightLeft className="inline w-2.5 h-2.5 mx-1 opacity-40" /> {evt.toPool}
-                    </span>
-                    <div className="w-1 h-1 rounded-full bg-white/10" />
-                    {evt.lossAvoided > 0 && (
-                      <span className="text-[10px] text-neon-orange font-black uppercase tracking-tighter">
-                        +${evt.lossAvoided} Mitigated
-                      </span>
-                    )}
-                    {evt.yieldGained > 0 && (
-                      <span className="text-[10px] text-neon-purple font-black uppercase tracking-tighter">
-                        +${evt.yieldGained} Amplified
-                      </span>
-                    )}
-                  </div>
-                </div>
-                {/* Timestamp */}
-                <span className="text-[9px] font-black text-gray-600 uppercase italic self-start mt-1">
-                  {timeAgo(evt.timestamp)}
-                </span>
+          {/* Box 2: Efficiency Breakdown */}
+          <div className="grid grid-rows-2 gap-4">
+            <div className="p-6 rounded-[2rem] bg-black/40 border border-white/5 group hover:border-neon-purple/30 smooth-transition flex flex-col justify-center">
+              <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-3">Gas Extraction Efficiency</p>
+              <div className="flex items-center justify-between">
+                <p className="text-3xl font-black text-neon-purple italic tracking-tighter">${totalYieldGained.toFixed(2)}</p>
+                <TrendingUp className="w-5 h-5 text-neon-purple/40 group-hover:text-neon-purple smooth-transition" />
               </div>
-            );
-          })}
+            </div>
+            <div className="p-6 rounded-[2rem] bg-black/40 border border-white/5 group hover:border-neon-orange/30 smooth-transition flex flex-col justify-center">
+              <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-3">Volatility Risk Mitigation</p>
+              <div className="flex items-center justify-between">
+                <p className="text-3xl font-black text-neon-orange italic tracking-tighter">${totalLossAvoided.toFixed(2)}</p>
+                <ShieldCheck className="w-5 h-5 text-neon-orange/40 group-hover:text-neon-orange smooth-transition" />
+              </div>
+            </div>
+          </div>
+
+          {/* Box 3: Progress to target */}
+          <div className="p-8 rounded-[2.5rem] border border-white/5 bg-black/20 flex flex-col justify-center group">
+            <div className="flex justify-between items-end mb-6">
+              <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Monthly Efficiency Target</span>
+              <span className="text-sm font-black text-white italic tracking-widest">$1,000.00</span>
+            </div>
+            <div className="h-3.5 bg-white/40 rounded-full overflow-hidden border border-white/20 shadow-inner p-0.5">
+              <div
+                className="h-full bg-gradient-to-r from-neon-purple to-neon-orange rounded-full smooth-transition shadow-[0_0_20px_rgba(191,0,255,0.4)] relative"
+                style={{ width: `${Math.min((totalBenefit / 1000) * 100, 100)}%` }}
+              >
+                 <div className="absolute inset-0 bg-white/10 animate-pulse" />
+              </div>
+            </div>
+            <div className="flex justify-between mt-6">
+               <span className="text-[11px] font-black text-neon-purple uppercase italic tracking-widest group-hover:neon-text-purple smooth-transition">
+                 {Math.round((totalBenefit / 1000) * 100)}% Synchronized
+               </span>
+               <div className="flex items-center gap-2">
+                 <Zap className="w-3 h-3 text-neon-orange" />
+                 <span className="text-[9px] font-black text-gray-600 uppercase">Mainnet Consensus</span>
+               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Timeline Section */}
+        <div className="pt-6 border-t border-white/5">
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center gap-4">
+              <div className="w-2 h-2 rounded-full bg-neon-purple" />
+              <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Neural Execution Timeline</p>
+            </div>
+            <button className="text-[10px] font-black text-neon-purple/70 uppercase tracking-widest flex items-center gap-2 hover:text-white smooth-transition group">
+              AUDIT FULL LOGS <ChevronRight className="w-3 h-3 group-hover:translate-x-1 smooth-transition" />
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {history.map((evt) => {
+              const meta = ACTION_LABELS[evt.action];
+              const Icon = meta.icon;
+              return (
+                <div
+                  key={evt.id}
+                  className="flex gap-6 p-6 rounded-[2rem] border border-white/5 bg-black/40 hover:bg-white/[0.04] smooth-transition group relative overflow-hidden"
+                >
+                  <div className={`w-14 h-14 rounded-2xl flex-shrink-0 flex items-center justify-center smooth-transition border ${evt.action === 'rebalance' ? 'bg-neon-purple/10 border-neon-purple/20 text-neon-purple' : 'bg-neon-orange/10 border-neon-orange/20 text-neon-orange'} group-hover:scale-110 shadow-lg`}>
+                    <Icon className="w-7 h-7" />
+                  </div>
+                  <div className="flex-1 min-w-0 flex flex-col justify-center">
+                    <p className="text-xs font-bold text-gray-300 leading-relaxed mb-3 italic group-hover:text-white transition-colors">
+                      {evt.explanation}
+                    </p>
+                    <div className="flex items-center gap-4 flex-wrap">
+                      <span className="text-[10px] font-black text-gray-600 uppercase tracking-tighter flex items-center gap-2">
+                        {evt.fromPool} <ArrowRightLeft className="w-3 h-3 opacity-40" /> {evt.toPool}
+                      </span>
+                      <div className="w-1.5 h-1.5 rounded-full bg-white/5" />
+                      {evt.lossAvoided > 0 && (
+                        <span className="text-[11px] text-neon-orange font-black uppercase tracking-tighter">
+                          +${evt.lossAvoided} Guarded
+                        </span>
+                      )}
+                      {evt.yieldGained > 0 && (
+                        <span className="text-[11px] text-neon-purple font-black uppercase tracking-tighter">
+                          +${evt.yieldGained} Amplified
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-black text-gray-600 uppercase italic whitespace-nowrap pt-1">
+                    {timeAgo(evt.timestamp)}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
     </div>

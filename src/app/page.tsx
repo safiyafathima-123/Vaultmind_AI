@@ -1,5 +1,6 @@
 "use client";
 
+import AboutProject from "@/components/AboutProject";
 import { useState, useEffect } from "react";
 import WalletConnect    from "@/components/WalletConnect";
 import PoolTable        from "@/components/PoolTable";
@@ -10,11 +11,8 @@ import StaticComparison from "@/components/StaticComparison";
 import SavingsTracker   from "@/components/SavingsTracker";
 import { UserProfile, loadSavedProfile } from "@/lib/types";
 import { useMarketData } from "@/lib/useMarketData";
-<<<<<<< HEAD
 import { useCurrentAccount } from "@onelabs/dapp-kit";
-=======
 import { RefreshCw, Activity } from "lucide-react";
->>>>>>> f38165e (Commited)
 
 // Tab definition
 const TABS = [
@@ -28,23 +26,17 @@ const TABS = [
 type TabId = typeof TABS[number]["id"];
 
 export default function HomePage() {
-<<<<<<< HEAD
-  const [profile,   setProfile]   = useState<UserProfile | null>(null);
-  const [activeTab, setActiveTab] = useState<TabId>("overview");
-  const { pools, isLoading, lastUpdated, refresh } = useMarketData();
-  const currentAccount = useCurrentAccount();
-=======
   const [profile,    setProfile]    = useState<UserProfile | null>(null);
   const [activeTab,  setActiveTab]  = useState<TabId>("overview");
   const { pools, isLoading, isRefreshing, lastUpdated, refresh } = useMarketData();
->>>>>>> f38165e (Commited)
+  const currentAccount = useCurrentAccount();
 
   useEffect(() => {
     const saved = loadSavedProfile();
     if (saved) setProfile(saved);
   }, []);
 
-  // Derive display address preferring the real connected account
+  // Derive display address preferring the real connected account address
   const displayAddress = currentAccount?.address ?? profile?.address ?? "";
 
   return (
@@ -55,7 +47,7 @@ export default function HomePage() {
 
       {/* ── Top navigation bar ────────────────────────────────────────────── */}
       <header className="glass-dark sticky top-0 z-50 border-b border-white/10">
-        <div className="max-w-6xl mx-auto px-6 py-5 flex items-center justify-between">
+        <div className="max-w-[1400px] mx-auto px-6 py-5 flex items-center justify-between">
           <div className="flex items-center gap-4 group cursor-pointer" onClick={() => setActiveTab("overview")}>
             <div className="w-10 h-10 rounded-2xl bg-black neon-border-purple flex items-center justify-center group-hover:scale-110 smooth-transition">
               <Activity className="w-6 h-6 text-neon-purple" />
@@ -80,9 +72,9 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Tab bar */}
+        {/* Tab bar — only show when connected */}
         {profile && (
-          <div className="max-w-6xl mx-auto px-6 flex gap-4 overflow-x-auto no-scrollbar">
+          <div className="max-w-[1400px] mx-auto px-6 flex gap-4 overflow-x-auto no-scrollbar">
             {TABS.map((tab) => (
               <button
                 key={tab.id}
@@ -101,14 +93,8 @@ export default function HomePage() {
       </header>
 
       {/* ── Body ──────────────────────────────────────────────────────────── */}
-<<<<<<< HEAD
-      <div className="max-w-5xl mx-auto px-5 py-6">
-
-        {/* Not connected */}
-=======
-      <div className="max-w-6xl mx-auto px-6 py-12 relative z-10">
+      <div className="max-w-[1400px] mx-auto px-6 py-12 relative z-10">
         {/* Landing state (Not connected) — handled by header */}
->>>>>>> f38165e (Commited)
         {!profile && (
           <div className="mt-32 text-center max-w-2xl mx-auto">
              <div className="inline-block px-4 py-1.5 rounded-full bg-neon-purple/10 border border-neon-purple/20 mb-8">
@@ -121,19 +107,11 @@ export default function HomePage() {
              <p className="text-gray-400 text-lg font-medium leading-relaxed mb-12 max-w-lg mx-auto">
                The world's most advanced autonomous strategist for <span className="text-white italic">OneChain</span> liquidity optimization.
              </p>
-             <div className="flex justify-center">
-                <WalletConnect onProfileReady={(p) => setProfile(p)} />
-             </div>
+
           </div>
         )}
 
-        {/* Loading state */}
-        {profile && isLoading && (
-          <div className="flex flex-col items-center justify-center mt-32 gap-3">
-            <div className="w-8 h-8 rounded-full border-2 border-purple-200 border-t-purple-600 animate-spin" />
-            <p className="text-sm text-gray-400">Loading market data...</p>
-          </div>
-        )}
+        {!profile && <AboutProject />}
 
         {/* Connected dashboard */}
         {profile && !isLoading && (
@@ -145,22 +123,14 @@ export default function HomePage() {
                 {/* Profile strip */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                   {[
-<<<<<<< HEAD
-                    {
-                      label: "Wallet",
-                      value: displayAddress
-                        ? `${displayAddress.slice(0, 6)}...${displayAddress.slice(-4)}`
-                        : "—",
+                    { 
+                      label: "Wallet ID", 
+                      value: displayAddress ? `${displayAddress.slice(0,6)}...${displayAddress.slice(-4)}` : "Not Linked", 
+                      extra: currentAccount ? "Dev Burner Active" : "Manual Portal" 
                     },
-                    { label: "Risk level",    value: profile.riskLevel                          },
-                    { label: "Safe haven",    value: profile.preferStablecoins ? "On" : "Off"  },
-                    { label: "Max rebalance", value: `${profile.maxRebalancePercent}%`          },
-=======
-                    { label: "Wallet Status", value: "Locked", extra: `${profile.address.slice(0,6)}...${profile.address.slice(-4)}` },
                     { label: "AI Behavior", value: profile.riskLevel, extra: "Dynamic Pivot" },
                     { label: "Safe Haven",   value: profile.preferStablecoins ? "Enabled" : "Off", extra: "Auto-Stable" },
                     { label: "Max Allocation", value: `${profile.maxRebalancePercent}%`, extra: "Autonomous" },
->>>>>>> f38165e (Commited)
                   ].map((item) => (
                     <div key={item.label} className="glass-dark rounded-3xl p-6 hover-glow-purple smooth-transition group">
                       <p className="text-[10px] font-black text-neon-purple/60 uppercase tracking-widest">{item.label}</p>
@@ -172,37 +142,15 @@ export default function HomePage() {
                   ))}
                 </div>
 
-<<<<<<< HEAD
-                <PoolTable />
-                <SavingsTracker pools={pools} profile={profile} />
-              </>
-            )}
-
-            {activeTab === "radar" && <MarketRadar pools={pools} />}
-
-            {activeTab === "debate" && <AIDebatePanel pools={pools} profile={profile} />}
-
-            {activeTab === "rebalance" && <PTBExecutor pools={pools} profile={profile} />}
-
-            {activeTab === "performance" && <StaticComparison pools={pools} profile={profile} />}
-
-          </div>
-        )}
-=======
                 {/* Main components */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                  <div className="lg:col-span-2">
-                    <PoolTable />
-                  </div>
-                  <div className="space-y-8">
-                    <SavingsTracker pools={pools} profile={profile} />
-                  </div>
+                <div className="space-y-12">
+                  <PoolTable />
+                  <SavingsTracker pools={pools} profile={profile} />
                 </div>
               </div>
             )}
 
             {/* ── TABS RENDERING ───────────────────────────────────────────── */}
-            {/* These will need internal color updates in subsequent steps */}
             {activeTab === "radar" && <div><MarketRadar pools={pools} /></div>}
             {activeTab === "debate" && <div><AIDebatePanel pools={pools} profile={profile} /></div>}
             {activeTab === "rebalance" && <div><PTBExecutor pools={pools} profile={profile} /></div>}
@@ -226,7 +174,6 @@ export default function HomePage() {
             </div>
           </div>
         )}
->>>>>>> f38165e (Commited)
       </div>
     </main>
   );

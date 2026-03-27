@@ -1,20 +1,23 @@
-<<<<<<< HEAD
-"use client";
-
-=======
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Providers } from "@/components/Providers";
 import "@onelabs/dapp-kit/dist/index.css";
->>>>>>> f38165e (Commited)
 import "./globals.css";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { SuiClientProvider, WalletProvider } from "@onelabs/dapp-kit";
-import { SuiClient, getFullnodeUrl } from "@mysten/sui/client";
 
-// Create clients once outside component so they never re-initialise
-const queryClient = new QueryClient();
-const suiClient   = new SuiClient({ url: getFullnodeUrl("testnet") });
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
+export const metadata: Metadata = {
+  title: "One-Vantage AI | Autonomous Yield Strategist",
+  description: "Advanced autonomous strategist for OneChain liquidity optimization and yield farming.",
+};
 
 export default function RootLayout({
   children,
@@ -22,27 +25,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-<<<<<<< HEAD
-    <html lang="en">
-      <body>
-        <QueryClientProvider client={queryClient}>
-          <SuiClientProvider client={suiClient}>
-            <WalletProvider autoConnect>
-              {/* autoConnect = reconnects wallet on page refresh automatically */}
-              {children}
-            </WalletProvider>
-          </SuiClientProvider>
-        </QueryClientProvider>
-=======
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col">
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
+      <body className="min-h-full bg-black">
         <Providers>
           {children}
         </Providers>
->>>>>>> f38165e (Commited)
       </body>
     </html>
   );

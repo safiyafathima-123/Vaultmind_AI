@@ -2,16 +2,10 @@
 "use client";
 
 import { useState } from "react";
-import { useSignAndExecuteTransaction } from "@onelabs/dapp-kit";
-import { Transaction } from "@onelabs/sui/transactions";
 import { Pool, UserProfile, PTBTransaction, PTBResult, PTBStep } from "@/lib/types";
-<<<<<<< HEAD
-import { buildPTB, stepLabel } from "@/lib/ptbBuilder";
-=======
 import { buildPTB, simulateExecution, stepLabel } from "@/lib/ptbBuilder";
 import { useSignAndExecuteTransaction, useCurrentAccount } from "@onelabs/dapp-kit";
 import { Transaction } from "@mysten/sui/transactions";
->>>>>>> f38165e (Commited)
 
 interface PTBExecutorProps {
   pools: Pool[];
@@ -30,17 +24,13 @@ export default function PTBExecutor({ pools, profile }: PTBExecutorProps) {
   const [toPoolId,   setToPoolId]   = useState(pools[2]?.id ?? "");
   const [amount,     setAmount]     = useState(1000);
 
-  const [tx,        setTx]        = useState<PTBTransaction | null>(null);
-  const [result,    setResult]    = useState<PTBResult | null>(null);
-  const [phase,     setPhase]     = useState<"idle"|"built"|"executing"|"done">("idle");
+  const [tx,       setTx]       = useState<PTBTransaction | null>(null);
+  const [result,   setResult]   = useState<PTBResult | null>(null);
+  const [phase,    setPhase]    = useState<"idle"|"built"|"executing"|"done">("idle");
   const [liveSteps, setLiveSteps] = useState<PTBStep[]>([]);
 
-<<<<<<< HEAD
-  const { mutate: signAndExecute } = useSignAndExecuteTransaction();
-=======
   const currentAccount = useCurrentAccount();
   const { mutateAsync: signAndExecuteTransaction } = useSignAndExecuteTransaction();
->>>>>>> f38165e (Commited)
 
   const fromPool = pools.find((p) => p.id === fromPoolId)!;
   const toPool   = pools.find((p) => p.id === toPoolId)!;
@@ -55,11 +45,7 @@ export default function PTBExecutor({ pools, profile }: PTBExecutorProps) {
     setPhase("built");
   }
 
-<<<<<<< HEAD
-  // ── Step B: Execute the PTB via real OneChain signing ─────────────────────
-=======
   // ── Step B: Execute the real PTB with live step updates ─────────────────────────
->>>>>>> f38165e (Commited)
   async function handleExecute() {
     if (!tx) return;
 
@@ -71,57 +57,6 @@ export default function PTBExecutor({ pools, profile }: PTBExecutorProps) {
     setPhase("executing");
     setResult(null);
 
-<<<<<<< HEAD
-    // Show steps as pending while wallet signs
-    setLiveSteps(tx.steps.map((s) => ({ ...s, status: "pending" as const })));
-
-    try {
-      // Build a real Move Transaction object
-      // In production replace with actual OneDEX contract calls:
-      //   transaction.moveCall({ target: "0xONEDEX::pool::withdraw", ... })
-      //   transaction.moveCall({ target: "0xONEDEX::swap::execute",  ... })
-      //   transaction.moveCall({ target: "0xONEDEX::pool::deposit",  ... })
-      const transaction = new Transaction();
-      const [coin] = transaction.splitCoins(transaction.gas, [
-        transaction.pure.u64(Math.floor(tx.totalAmount * 1000)), // demo MIST amount
-      ]);
-      transaction.transferObjects(
-        [coin],
-        transaction.pure.address(fromPool?.id?.slice(0, 66) ?? "0x0")
-      );
-
-      signAndExecute(
-        { transaction },
-        {
-          onSuccess: (data) => {
-            const allSuccess = tx.steps.map((s) => ({ ...s, status: "success" as const }));
-            setLiveSteps(allSuccess);
-            setResult({
-              success: true,
-              txHash:  data.digest,   // Real on-chain transaction hash
-              gasUsed: tx.estimatedTotalGas,
-              steps:   allSuccess,
-            });
-            setPhase("done");
-          },
-          onError: (error) => {
-            const reverted = tx.steps.map((s) => ({ ...s, status: "reverted" as const }));
-            setLiveSteps(reverted);
-            setResult({
-              success: false,
-              error:   error.message ?? "Transaction failed. All steps reverted.",
-              steps:   reverted,
-            });
-            setPhase("done");
-          },
-        }
-      );
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Failed to build transaction.";
-      const reverted = tx.steps.map((s) => ({ ...s, status: "reverted" as const }));
-      setLiveSteps(reverted);
-      setResult({ success: false, error: msg, steps: reverted });
-=======
     try {
       const txb = new Transaction();
       // Execute a real, safe testnet transaction: Split 1 MIST from gas and send it to yourself!
@@ -129,7 +64,7 @@ export default function PTBExecutor({ pools, profile }: PTBExecutorProps) {
       txb.transferObjects([coin], txb.pure.address(currentAccount.address));
 
       const response = await signAndExecuteTransaction({
-        transaction: txb,
+        transaction: txb as any,
       });
 
       // Animate simulated steps locally to look cool, then show the real tx hash
@@ -155,7 +90,6 @@ export default function PTBExecutor({ pools, profile }: PTBExecutorProps) {
         error: err.message || "Transaction execution failed or was rejected.",
         steps: reverted,
       });
->>>>>>> f38165e (Commited)
       setPhase("done");
     }
   }
@@ -188,10 +122,10 @@ export default function PTBExecutor({ pools, profile }: PTBExecutorProps) {
               value={fromPoolId}
               onChange={(e) => setFromPoolId(e.target.value)}
               disabled={phase !== "idle"}
-              className="w-full text-xs font-black uppercase italic border border-white/10 rounded-xl px-4 py-3 bg-black/60 text-white focus:outline-none focus:neon-border-purple disabled:opacity-30 smooth-transition"
+              className="w-full text-xs font-black uppercase italic border neon-border-purple rounded-xl px-4 py-3 bg-black/80 text-neon-purple focus:outline-none shadow-[0_0_15px_rgba(191,0,255,0.15)] disabled:opacity-30 smooth-transition"
             >
               {pools.map((p) => (
-                <option key={p.id} value={p.id} className="bg-black">{p.name}</option>
+                <option key={p.id} value={p.id} className="bg-black text-neon-purple font-black italic">{p.name}</option>
               ))}
             </select>
           </div>
@@ -203,10 +137,10 @@ export default function PTBExecutor({ pools, profile }: PTBExecutorProps) {
               value={toPoolId}
               onChange={(e) => setToPoolId(e.target.value)}
               disabled={phase !== "idle"}
-              className="w-full text-xs font-black uppercase italic border border-white/10 rounded-xl px-4 py-3 bg-black/60 text-white focus:outline-none focus:neon-border-orange disabled:opacity-30 smooth-transition"
+              className="w-full text-xs font-black uppercase italic border neon-border-orange rounded-xl px-4 py-3 bg-black/80 text-neon-orange focus:outline-none shadow-[0_0_15px_rgba(255,94,0,0.15)] disabled:opacity-30 smooth-transition"
             >
               {pools.map((p) => (
-                <option key={p.id} value={p.id} className="bg-black">{p.name}</option>
+                <option key={p.id} value={p.id} className="bg-black text-neon-orange font-black italic">{p.name}</option>
               ))}
             </select>
           </div>
@@ -228,7 +162,7 @@ export default function PTBExecutor({ pools, profile }: PTBExecutorProps) {
             value={amount}
             disabled={phase !== "idle"}
             onChange={(e) => setAmount(Number(e.target.value))}
-            className="w-full accent-neon-purple bg-white/5 h-1.5 rounded-full appearance-none cursor-pointer disabled:opacity-30"
+            className="w-full accent-neon-purple bg-white/[0.4] h-1.5 rounded-full appearance-none cursor-pointer disabled:opacity-30 border border-white/20 shadow-[0_0_10px_rgba(255,255,255,0.05)]"
           />
           <div className="flex justify-between text-[9px] font-black text-gray-600 mt-4 uppercase tracking-tighter">
             <span>Min: $100</span>
@@ -257,7 +191,7 @@ export default function PTBExecutor({ pools, profile }: PTBExecutorProps) {
                   <span className="w-6 h-6 rounded-full bg-white/5 text-[10px] text-gray-400 flex items-center justify-center font-black flex-shrink-0">
                     {i + 1}
                   </span>
-                  <span className={`text-[9px] px-3 py-1 rounded-full border font-black uppercase tracking-widest flex-shrink-0 ${stepBadgeClass(step.type)}`}>
+                  <span className={`text-[9px] px-3 py-1 rounded-full border font-black uppercase tracking-widest flex-shrink-0 whitespace-nowrap ${stepBadgeClass(step.type)}`}>
                     {step.type}
                   </span>
                   <span className="text-xs font-bold text-gray-300 flex-1 truncate">

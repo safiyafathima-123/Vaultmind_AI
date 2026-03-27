@@ -54,11 +54,11 @@ export default function PoolTable() {
         <table className="w-full text-sm">
           <thead>
             <tr className="text-[10px] text-gray-500 font-black uppercase tracking-[0.3em] bg-black/40">
-              <th className="text-left px-8 py-5">Pool Pair</th>
-              <th className="text-right px-8 py-5">Est. APY</th>
-              <th className="text-right px-8 py-5">Risk Rating</th>
-              <th className="text-right px-8 py-5">Capacity</th>
-              <th className="text-right px-8 py-5">Neural Trust</th>
+              <th className="text-left px-6 py-5">Pool Pair</th>
+              <th className="text-right px-6 py-5">Est. APY</th>
+              <th className="text-right px-6 py-5">Risk Rating</th>
+              <th className="text-right px-6 py-5">Capacity</th>
+              <th className="text-right px-6 py-5">Neural Trust</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-white/5">
@@ -67,7 +67,7 @@ export default function PoolTable() {
                 key={pool.id}
                 className="group hover:bg-neon-purple/[0.04] smooth-transition cursor-default"
               >
-                <td className="px-8 py-6">
+                <td className="px-6 py-6">
                    <div className="flex items-center gap-4">
                       <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center font-black text-[10px] text-gray-400 group-hover:neon-border-purple group-hover:text-neon-purple smooth-transition uppercase border border-white/5">
                         {pool.name.slice(0, 1)}
@@ -75,14 +75,14 @@ export default function PoolTable() {
                       <span className="font-black text-white italic tracking-tight">{pool.name}</span>
                    </div>
                 </td>
-                <td className="px-8 py-6 text-right">
+                <td className="px-6 py-6 text-right">
                    <span className="inline-flex items-center gap-2 font-black text-neon-orange px-3 py-1.5 rounded-xl bg-neon-orange/10 border border-neon-orange/20 group-hover:scale-110 smooth-transition shadow-[0_0_15px_rgba(255,94,0,0.1)]">
                     <TrendingUp className="w-3.5 h-3.5" />
                     {formatAPY(pool.apy)}
                   </span>
                 </td>
-                <td className="px-8 py-6 text-right">
-                  <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full border shadow-sm ${
+                <td className="px-6 py-6 text-right">
+                  <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full border shadow-sm whitespace-nowrap ${
                     pool.volatility < 0.3 ? 'bg-neon-purple/10 text-neon-purple border-neon-purple/20' : 
                     pool.volatility < 0.6 ? 'bg-neon-orange/10 text-neon-orange border-neon-orange/20' : 
                     'bg-neon-orange/20 text-neon-orange border-neon-orange/40'
@@ -90,12 +90,12 @@ export default function PoolTable() {
                     {volatilityLabel(pool.volatility)}
                   </span>
                 </td>
-                <td className="px-8 py-6 text-right font-black text-gray-400 tabular-nums">
+                <td className="px-6 py-6 text-right font-black text-gray-400 tabular-nums">
                   {formatTVL(pool.tvl)}
                 </td>
-                <td className="px-8 py-6 text-right">
+                <td className="px-6 py-6 text-right">
                   <div className="flex items-center justify-end gap-4">
-                    <div className="w-24 h-1.5 bg-white/5 rounded-full overflow-hidden">
+                    <div className="w-24 h-1.5 bg-white/40 rounded-full overflow-hidden border border-white/20 shadow-inner">
                       <div
                         className="h-full bg-neon-purple rounded-full smooth-transition shadow-[0_0_10px_var(--neon-purple)]"
                         style={{ width: `${pool.confidence * 100}%` }}

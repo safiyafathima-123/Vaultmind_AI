@@ -14,12 +14,12 @@ interface AIDebatePanelProps {
 const AGENT_META = {
   "Yield Hunter":  { icon: "⚡", bg: "bg-neon-orange/10", border: "border-neon-orange/20", badge: "bg-neon-orange/20 text-neon-orange" },
   "Risk Guardian": { icon: "🛡",  bg: "bg-neon-purple/10", border: "border-neon-purple/20", badge: "bg-neon-purple/20 text-neon-purple" },
-  "Stability AI":  { icon: "⚖️",  bg: "bg-white/5",       border: "border-white/10",      badge: "bg-white/10 text-white"       },
+  "Stability AI":  { icon: "⚖️",  bg: "bg-neon-purple/20", border: "border-neon-purple/30", badge: "bg-neon-purple/30 text-neon-purple" },
 };
 
 const ACTION_META = {
   "rebalance":      { label: "REBALANCING",       color: "text-neon-purple", bg: "bg-neon-purple/5",  border: "border-neon-purple/20" },
-  "hold":           { label: "HOLDING POSITION",  color: "text-gray-400",   bg: "bg-white/5",        border: "border-white/5"       },
+  "hold":           { label: "HOLDING POSITION",  color: "text-neon-purple", bg: "bg-neon-purple/10", border: "border-neon-purple/30" },
   "move-to-stable": { label: "MOVING TO STABLE",  color: "text-neon-orange", bg: "bg-neon-orange/5",  border: "border-neon-orange/20" },
 };
 
@@ -76,19 +76,21 @@ export default function AIDebatePanel({ pools, profile }: AIDebatePanelProps) {
 
       {/* Agents thinking animation */}
       {isRunning && (
-        <div className="px-8 py-8 space-y-4">
+        <div className="px-8 py-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
           {["Yield Hunter", "Risk Guardian", "Stability AI"].map((name, i) => {
             const meta = AGENT_META[name as keyof typeof AGENT_META];
             return (
               <div
                 key={name}
-                className={`flex items-center gap-5 p-5 rounded-2xl border ${meta.bg} ${meta.border} shadow-inner bg-black/40`}
+                className={`flex flex-col items-center text-center gap-4 p-8 rounded-2xl border ${meta.bg} ${meta.border} shadow-inner bg-black/40`}
                 style={{ opacity: step >= 1 ? 1 : 0, transition: `opacity 0.3s ${i * 0.15}s` }}
               >
-                <span className="text-2xl grayscale group-hover:grayscale-0 transition-all">{meta.icon}</span>
-                <div className="flex-1">
-                  <p className="text-[10px] font-black text-white uppercase tracking-widest">{name}</p>
-                  <div className="mt-3 h-1 bg-black rounded-full overflow-hidden w-full max-w-sm">
+                <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10 group-hover:scale-110 smooth-transition">
+                   <span className="text-3xl">{meta.icon}</span>
+                </div>
+                <div className="flex-1 w-full text-center">
+                  <p className="text-[10px] font-black text-white uppercase tracking-widest mb-4">{name}</p>
+                  <div className="h-1 bg-black rounded-full overflow-hidden w-full">
                     <div
                       className="h-full bg-neon-purple rounded-full animate-pulse shadow-[0_0_8px_var(--neon-purple)]"
                       style={{ width: "65%" }}
@@ -106,37 +108,44 @@ export default function AIDebatePanel({ pools, profile }: AIDebatePanelProps) {
       {decision && !isRunning && (
         <div className="divide-y divide-white/5">
           {/* Agent opinions */}
-          <div className="px-8 py-8 space-y-4">
-            <p className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] mb-6">
+          <div className="px-8 py-8">
+            <p className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] mb-8">
               Neural Consensus
             </p>
-            {decision.agentOpinions.map((agent) => {
-              const meta = AGENT_META[agent.agentName as keyof typeof AGENT_META];
-              return (
-                <div
-                  key={agent.agentName}
-                  className={`p-6 rounded-2xl border ${meta.bg} ${meta.border} bg-black/20 group hover:border-white/20 smooth-transition`}
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-center gap-3">
-                      <span className="text-xl">{meta.icon}</span>
-                      <span className="font-black text-white text-xs uppercase tracking-widest italic font-mono">
-                        {agent.agentName}
-                      </span>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {decision.agentOpinions.map((agent) => {
+                const meta = AGENT_META[agent.agentName as keyof typeof AGENT_META];
+                return (
+                  <div
+                    key={agent.agentName}
+                    className={`p-8 rounded-2xl border ${meta.bg} ${meta.border} bg-black/20 group hover:border-white/20 smooth-transition flex flex-col`}
+                  >
+                    <div className="flex flex-col items-center text-center gap-4 mb-6">
+                      <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10 group-hover:scale-110 smooth-transition">
+                        <span className="text-2xl">{meta.icon}</span>
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <span className="font-black text-white text-xs uppercase tracking-widest italic font-mono">
+                          {agent.agentName}
+                        </span>
+                        <div className="flex justify-center">
+                          <span className={`text-[10px] px-3 py-1 rounded-full font-black uppercase tracking-tighter ${meta.badge}`}>
+                            {agent.confidence}% Accuracy
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                    <span className={`text-[10px] px-3 py-1 rounded-full font-black uppercase tracking-tighter ${meta.badge}`}>
-                      {agent.confidence}% Accuracy
-                    </span>
+                    <div className="w-full h-px bg-white/5 mb-6" />
+                    <p className="text-sm font-black text-white italic tracking-tight leading-relaxed mb-4">
+                      → {agent.recommendation}
+                    </p>
+                    <p className="text-xs text-gray-500 leading-relaxed font-medium">
+                      {agent.reasoning}
+                    </p>
                   </div>
-                  <p className="text-sm font-black text-white italic mt-4 tracking-tight leading-relaxed">
-                    → {agent.recommendation}
-                  </p>
-                  <p className="text-xs text-gray-500 mt-2 leading-relaxed font-medium">
-                    {agent.reasoning}
-                  </p>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
 
           {/* Final decision */}
@@ -156,7 +165,7 @@ export default function AIDebatePanel({ pools, profile }: AIDebatePanelProps) {
                     {actionMeta.label}
                   </span>
                   {decision.estimatedGain > 0 && (
-                    <span className="text-[10px] font-black text-neon-orange bg-neon-orange/10 border border-neon-orange/20 px-3 py-1.5 rounded-full uppercase tracking-widest">
+                    <span className="text-[10px] font-black text-neon-orange bg-neon-orange/10 border border-neon-orange/20 px-3 py-1.5 rounded-full uppercase tracking-widest whitespace-nowrap">
                       +{decision.estimatedGain.toFixed(2)}% Efficiency
                     </span>
                   )}

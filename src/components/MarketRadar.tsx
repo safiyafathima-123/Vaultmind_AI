@@ -169,7 +169,7 @@ export default function MarketRadar({ pools }: MarketRadarProps) {
                     <Cell key={i} fill={POOL_COLORS[i]} />
                   ))}
                 </Bar>
-                <Bar dataKey="Risk" radius={[6, 6, 0, 0]} fill="#262626" />
+                <Bar dataKey="Risk" radius={[6, 6, 0, 0]} fill="#a3a3a3" />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -178,13 +178,18 @@ export default function MarketRadar({ pools }: MarketRadarProps) {
         {/* Forecast strip */}
         <div className="pt-6 border-t border-white/5">
           <p className="text-[10px] font-black text-gray-600 mb-6 uppercase tracking-[0.3em] font-mono">Neural risk Forecasting</p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {pools.map((pool) => (
-              <div key={pool.id} className="flex items-center gap-4 group">
-                <span className="text-[10px] font-black text-gray-400 w-28 truncate group-hover:text-white transition-colors">{pool.name}</span>
-                <div className="flex-1 h-1 bg-white/5 rounded-full overflow-hidden">
+              <div key={pool.id} className="p-6 rounded-2xl border border-white/5 bg-black/40 hover-glow-purple smooth-transition group">
+                <div className="flex items-center justify-between mb-4">
+                   <span className="text-[10px] font-black text-white uppercase tracking-widest truncate">{pool.name.split(" / ")[0]}</span>
+                   <span className="text-[10px] font-black uppercase italic font-mono" style={{ color: pool.volatility < 0.3 ? "#bf00ff" : "#ff5e00" }}>
+                    {Math.round(pool.volatility * 100)}% Risk
+                  </span>
+                </div>
+                <div className="flex-1 h-1.5 bg-white/40 rounded-full overflow-hidden border border-white/20 shadow-inner">
                   <div
-                    className="h-full rounded-full smooth-transition"
+                    className="h-full rounded-full smooth-transition group-hover:scale-x-105 origin-left"
                     style={{
                       width: `${pool.volatility * 100}%`,
                       backgroundColor: pool.volatility < 0.3 ? "#bf00ff" : "#ff5e00",
@@ -192,9 +197,9 @@ export default function MarketRadar({ pools }: MarketRadarProps) {
                     }}
                   />
                 </div>
-                <span className="text-[10px] font-black w-14 text-right uppercase italic font-mono" style={{ color: pool.volatility < 0.3 ? "#bf00ff" : "#ff5e00" }}>
-                  {Math.round(pool.volatility * 100)}% Risk
-                </span>
+                <p className="text-[9px] text-gray-500 font-bold uppercase tracking-tighter opacity-0 group-hover:opacity-100 smooth-transition">
+                  {pool.volatility < 0.3 ? "Stable Node" : "Volatile Pivot"}
+                </p>
               </div>
             ))}
           </div>
