@@ -15,16 +15,15 @@ interface MarketRadarProps {
 }
 
 // Color per pool for charts
-const POOL_COLORS = ["#7C3AED","#059669","#D97706","#DC2626","#2563EB"];
+// Color per pool for charts - Neon palette
+const POOL_COLORS = ["#bf00ff", "#ff5e00", "#00f2ff", "#ff007f", "#bcff00"];
 
 export default function MarketRadar({ pools }: MarketRadarProps) {
   if (!pools.length) return null;
 
   const circuitBreaker = isCircuitBreakerActive(pools);
 
-  // ── Radar chart data: each pool scored on 4 axes ─────────────────────────
-  // Recharts radar needs one entry per axis, with a value per pool
-  // We flip volatility so "low volatility = high score on radar"
+  // ── Radar chart data ────────────────────────────────────────────────────
   const radarData = [
     {
       axis: "APY",
@@ -39,180 +38,162 @@ export default function MarketRadar({ pools }: MarketRadarProps) {
       ),
     },
     {
-      axis: "Confidence",
+      axis: "Logic",
       ...Object.fromEntries(
         pools.map((p) => [p.name, parseFloat((p.confidence * 100).toFixed(1))])
       ),
     },
     {
-      axis: "Liquidity",
+      axis: "TVL Cap",
       ...Object.fromEntries(
         pools.map((p) => [p.name, parseFloat((Math.min(p.tvl / 10_000_000, 1) * 100).toFixed(1))])
       ),
     },
   ];
 
-  // ── Bar chart data: APY vs Volatility side by side ────────────────────────
   const barData = pools.map((p) => ({
-    name: p.name.split(" / ")[0],   // shorten label
+    name: p.name.split(" / ")[0],
     APY: parseFloat(p.apy.toFixed(1)),
     Risk: parseFloat((p.volatility * 100).toFixed(1)),
   }));
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+    <div className="glass-dark rounded-3xl overflow-hidden smooth-transition border border-white/5 shadow-2xl">
       {/* Header */}
-      <div className="flex items-center justify-between px-5 py-4 border-b border-gray-50">
+      <div className="flex items-center justify-between px-8 py-6 border-b border-white/5 bg-white/[0.02]">
         <div>
-          <h3 className="font-semibold text-gray-800 text-sm">Market radar</h3>
-          <p className="text-xs text-gray-400 mt-0.5">
-            Live pool analysis across 4 dimensions
+          <h3 className="font-black text-white text-xs uppercase tracking-[0.2em] italic">Neural Market Radar</h3>
+          <p className="text-[10px] text-gray-500 font-bold mt-1 uppercase tracking-tighter">
+            Multidimensional Analytical Array
           </p>
         </div>
-        {/* Circuit breaker alert */}
         {circuitBreaker && (
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-red-50 border border-red-100 rounded-xl">
-            <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse inline-block" />
-            <span className="text-xs font-semibold text-red-600">
-              Circuit breaker active
-            </span>
+          <div className="flex items-center gap-2 px-4 py-2 bg-neon-orange/10 border border-neon-orange/20 rounded-xl">
+            <span className="w-2 h-2 rounded-full bg-neon-orange shadow-[0_0_10px_var(--neon-orange)] animate-pulse" />
+            <span className="text-[10px] font-black text-neon-orange uppercase tracking-widest">Circuit Breaker Active</span>
           </div>
         )}
       </div>
 
-      <div className="p-5 space-y-6">
-        {/* ── Pool health cards ───────────────────────────────────────────── */}
-        <div className="grid grid-cols-5 gap-2">
+      <div className="p-8 space-y-10">
+        {/* Pool health cards */}
+        <div className="grid grid-cols-5 gap-3">
           {pools.map((pool, i) => (
             <div
               key={pool.id}
-              className="p-3 rounded-xl border border-gray-50 bg-gray-50 text-center"
+              className="p-4 rounded-2xl border border-white/5 bg-black/40 text-center hover-glow-purple smooth-transition group"
             >
-              <p className="text-xs font-semibold text-gray-700 truncate">
+              <p className="text-[9px] font-black text-gray-500 uppercase tracking-widest truncate group-hover:text-white transition-colors">
                 {pool.name.split(" / ")[0]}
               </p>
-              <p className="text-base font-bold mt-1"
+              <p className="text-lg font-black mt-2 italic tracking-tighter"
                 style={{ color: POOL_COLORS[i] }}>
                 {formatAPY(pool.apy)}
-              </p>
-              <p className={`text-xs mt-0.5 font-medium ${volatilityColor(pool.volatility)}`}>
-                {volatilityLabel(pool.volatility)}
               </p>
             </div>
           ))}
         </div>
 
-        {/* ── Radar chart ─────────────────────────────────────────────────── */}
-        <div>
-          <p className="text-xs font-medium text-gray-400 mb-3 uppercase tracking-wide">
-            Pool comparison radar
-          </p>
-          <ResponsiveContainer width="100%" height={280}>
-            <RadarChart data={radarData}>
-              <PolarGrid stroke="#f0f0f0" />
-              <PolarAngleAxis
-                dataKey="axis"
-                tick={{ fontSize: 11, fill: "#9ca3af" }}
-              />
-              <Tooltip
-                contentStyle={{
-                  fontSize: 11,
-                  borderRadius: 8,
-                  border: "1px solid #f0f0f0",
-                  boxShadow: "none",
-                }}
-              />
-              <Legend
-                iconType="circle"
-                iconSize={7}
-                wrapperStyle={{ fontSize: 11, paddingTop: 8 }}
-              />
-              {pools.map((pool, i) => (
-                <Radar
-                  key={pool.id}
-                  name={pool.name}
-                  dataKey={pool.name}
-                  stroke={POOL_COLORS[i]}
-                  fill={POOL_COLORS[i]}
-                  fillOpacity={0.08}
-                  strokeWidth={1.5}
+        {/* Radar and Bar Charts */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+          {/* Radar */}
+          <div>
+            <p className="text-[10px] font-black text-gray-600 mb-6 uppercase tracking-[0.3em] font-mono">Comparative Neural Topology</p>
+            <ResponsiveContainer width="100%" height={300}>
+              <RadarChart data={radarData}>
+                <PolarGrid stroke="#262626" />
+                <PolarAngleAxis
+                  dataKey="axis"
+                  tick={{ fontSize: 9, fill: "#737373", fontWeight: 900 }}
                 />
-              ))}
-            </RadarChart>
-          </ResponsiveContainer>
-        </div>
-
-        {/* ── APY vs Risk bar chart ────────────────────────────────────────── */}
-        <div>
-          <p className="text-xs font-medium text-gray-400 mb-3 uppercase tracking-wide">
-            APY % vs risk %
-          </p>
-          <ResponsiveContainer width="100%" height={180}>
-            <BarChart
-              data={barData}
-              barCategoryGap="30%"
-              barGap={3}
-            >
-              <CartesianGrid strokeDasharray="3 3" stroke="#f5f5f5" vertical={false} />
-              <XAxis
-                dataKey="name"
-                tick={{ fontSize: 11, fill: "#9ca3af" }}
-                axisLine={false}
-                tickLine={false}
-              />
-              <YAxis
-                tick={{ fontSize: 10, fill: "#d1d5db" }}
-                axisLine={false}
-                tickLine={false}
-                width={28}
-              />
-              <Tooltip
-                contentStyle={{
-                  fontSize: 11,
-                  borderRadius: 8,
-                  border: "1px solid #f0f0f0",
-                  boxShadow: "none",
-                }}
-              />
-              <Legend
-                iconType="circle"
-                iconSize={7}
-                wrapperStyle={{ fontSize: 11 }}
-              />
-              <Bar dataKey="APY" radius={[4, 4, 0, 0]}>
-                {barData.map((_, i) => (
-                  <Cell key={i} fill={POOL_COLORS[i]} />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "#000",
+                    border: "1px solid rgba(255,255,255,0.1)",
+                    borderRadius: "12px",
+                    fontSize: "10px",
+                    fontWeight: "bold",
+                    color: "#fff"
+                  }}
+                />
+                <Legend
+                  iconType="circle"
+                  iconSize={6}
+                  wrapperStyle={{ fontSize: 9, fontWeight: 900, textTransform: "uppercase", letterSpacing: "1px", paddingTop: "20px" }}
+                />
+                {pools.map((pool, i) => (
+                  <Radar
+                    key={pool.id}
+                    name={pool.name}
+                    dataKey={pool.name}
+                    stroke={POOL_COLORS[i]}
+                    fill={POOL_COLORS[i]}
+                    fillOpacity={0.05}
+                    strokeWidth={2}
+                  />
                 ))}
-              </Bar>
-              <Bar dataKey="Risk" radius={[4, 4, 0, 0]} fill="#fca5a5" />
-            </BarChart>
-          </ResponsiveContainer>
+              </RadarChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Bar */}
+          <div>
+            <p className="text-[10px] font-black text-gray-600 mb-6 uppercase tracking-[0.3em] font-mono">Relative Efficiency metrics</p>
+            <ResponsiveContainer width="100%" height={240}>
+              <BarChart data={barData} barCategoryGap="40%">
+                <CartesianGrid strokeDasharray="3 3" stroke="#171717" vertical={false} />
+                <XAxis
+                  dataKey="name"
+                  tick={{ fontSize: 9, fill: "#737373", fontWeight: 900 }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <YAxis
+                  tick={{ fontSize: 8, fill: "#404040", fontWeight: 900 }}
+                  axisLine={false}
+                  tickLine={false}
+                  width={30}
+                />
+                <Tooltip
+                   contentStyle={{
+                    backgroundColor: "#000",
+                    border: "1px solid rgba(255,255,255,0.1)",
+                    borderRadius: "12px",
+                    fontSize: "10px",
+                    fontWeight: "bold"
+                  }}
+                />
+                <Legend iconType="circle" iconSize={6} wrapperStyle={{ fontSize: 9, fontWeight: 900, textTransform: "uppercase", letterSpacing: "1px" }} />
+                <Bar dataKey="APY" radius={[6, 6, 0, 0]}>
+                  {barData.map((_, i) => (
+                    <Cell key={i} fill={POOL_COLORS[i]} />
+                  ))}
+                </Bar>
+                <Bar dataKey="Risk" radius={[6, 6, 0, 0]} fill="#262626" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         </div>
 
-        {/* ── Volatility forecast strip ────────────────────────────────────── */}
-        <div>
-          <p className="text-xs font-medium text-gray-400 mb-3 uppercase tracking-wide">
-            Predicted risk zones
-          </p>
-          <div className="space-y-2">
+        {/* Forecast strip */}
+        <div className="pt-6 border-t border-white/5">
+          <p className="text-[10px] font-black text-gray-600 mb-6 uppercase tracking-[0.3em] font-mono">Neural risk Forecasting</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
             {pools.map((pool) => (
-              <div key={pool.id} className="flex items-center gap-3">
-                <span className="text-xs text-gray-500 w-24 truncate">{pool.name}</span>
-                <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+              <div key={pool.id} className="flex items-center gap-4 group">
+                <span className="text-[10px] font-black text-gray-400 w-28 truncate group-hover:text-white transition-colors">{pool.name}</span>
+                <div className="flex-1 h-1 bg-white/5 rounded-full overflow-hidden">
                   <div
-                    className="h-full rounded-full transition-all duration-500"
+                    className="h-full rounded-full smooth-transition"
                     style={{
                       width: `${pool.volatility * 100}%`,
-                      backgroundColor:
-                        pool.volatility < 0.25 ? "#22c55e"
-                        : pool.volatility < 0.55 ? "#eab308"
-                        : pool.volatility < 0.75 ? "#f97316"
-                        : "#ef4444",
+                      backgroundColor: pool.volatility < 0.3 ? "#bf00ff" : "#ff5e00",
+                      boxShadow: pool.volatility < 0.3 ? "0 0 10px rgba(191,0,255,0.4)" : "0 0 10px rgba(255,94,0,0.4)"
                     }}
                   />
                 </div>
-                <span className={`text-xs font-medium w-16 text-right ${volatilityColor(pool.volatility)}`}>
-                  {(pool.volatility * 100).toFixed(0)}% risk
+                <span className="text-[10px] font-black w-14 text-right uppercase italic font-mono" style={{ color: pool.volatility < 0.3 ? "#bf00ff" : "#ff5e00" }}>
+                  {Math.round(pool.volatility * 100)}% Risk
                 </span>
               </div>
             ))}

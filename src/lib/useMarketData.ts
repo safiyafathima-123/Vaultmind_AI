@@ -13,14 +13,19 @@ interface MarketDataState {
   refresh: () => void;   // call this to manually re-fetch
 }
 
-export function useMarketData(refreshIntervalMs = 30000): MarketDataState {
+export function useMarketData(refreshIntervalMs = 0): MarketDataState & { isRefreshing: boolean } {
   const [pools, setPools] = useState<Pool[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
-  const load = useCallback(async () => {
-    setIsLoading(true);
+  const load = useCallback(async (isBackground = false) => {
+    if (isBackground) {
+      setIsRefreshing(true);
+    } else {
+      setIsLoading(true);
+    }
     setError(null);
     try {
       const data = await fetchMarketData();
@@ -28,22 +33,24 @@ export function useMarketData(refreshIntervalMs = 30000): MarketDataState {
       setLastUpdated(new Date());
     } catch (err) {
       setError("Could not fetch market data");
-      setPools(MOCK_POOLS); // always show something
+      if (pools.length === 0) setPools(MOCK_POOLS);
     } finally {
       setIsLoading(false);
+      setIsRefreshing(false);
     }
-  }, []);
+  }, [pools.length]);
 
   // Load on mount
   useEffect(() => {
     load();
   }, [load]);
 
-  // Auto-refresh every 30 seconds
+  // Auto-refresh only if refreshIntervalMs > 0
   useEffect(() => {
-    const interval = setInterval(load, refreshIntervalMs);
-    return () => clearInterval(interval); // cleanup on unmount
+    if (refreshIntervalMs <= 0) return;
+    const interval = setInterval(() => load(true), refreshIntervalMs);
+    return () => clearInterval(interval);
   }, [load, refreshIntervalMs]);
 
-  return { pools, isLoading, error, lastUpdated, refresh: load };
+  return { pools, isLoading, isRefreshing, error, lastUpdated, refresh: () => load() };
 }

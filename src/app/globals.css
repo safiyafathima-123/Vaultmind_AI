@@ -1,26 +1,81 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #000000;
+  --foreground: #ffffff;
+  --neon-purple: #bf00ff;
+  --neon-orange: #ff5e00;
+  --neon-glow-purple: 0 0 15px rgba(191, 0, 255, 0.5);
+  --neon-glow-orange: 0 0 15px rgba(255, 94, 0, 0.5);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-neon-purple: var(--neon-purple);
+  --color-neon-orange: var(--neon-orange);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: #000000;
+  color: #ffffff;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  overflow-x: hidden;
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl;
+  }
+  
+  .glass-dark {
+    @apply bg-black/80 backdrop-blur-2xl border border-white/5 shadow-2xl;
+  }
+
+  .neon-border-purple {
+    border: 1px solid var(--neon-purple);
+    box-shadow: var(--neon-glow-purple);
+  }
+
+  .neon-border-orange {
+    border: 1px solid var(--neon-orange);
+    box-shadow: var(--neon-glow-orange);
+  }
+
+  .neon-text-purple {
+    color: var(--neon-purple);
+    text-shadow: 0 0 10px rgba(191, 0, 255, 0.4);
+  }
+
+  .neon-text-orange {
+    color: var(--neon-orange);
+    text-shadow: 0 0 10px rgba(255, 94, 0, 0.4);
+  }
+
+  .smooth-transition {
+    @apply transition-all duration-500;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .hover-glow-purple:hover {
+    box-shadow: 0 0 25px rgba(191, 0, 255, 0.7);
+    transform: translateY(-2px);
+  }
+
+  .hover-glow-orange:hover {
+    box-shadow: 0 0 25px rgba(255, 94, 0, 0.7);
+    transform: translateY(-2px);
+  }
+}
+
+/* Custom scrollbar for premium feel */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: #000000;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--neon-purple);
+  border-radius: 10px;
 }
