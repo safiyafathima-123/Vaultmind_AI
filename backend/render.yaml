@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: one-vantage-backend
+    env: node
+    plan: free
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: FRONTEND_URL
+        value: https://one-vantage.vercel.app # Change this after deployment
