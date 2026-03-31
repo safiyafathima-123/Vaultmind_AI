@@ -159,7 +159,7 @@ export default function WalletConnect({ onProfileReady }: WalletConnectProps) {
         <div className="mb-12 relative z-10">
           <h2 className="text-5xl font-black text-white italic tracking-tighter mb-4 uppercase">Neural Strategy <span className="neon-text-purple">Uplink.</span></h2>
           <p className="text-base text-gray-400 max-w-2xl leading-relaxed font-medium">
-            Configure your autonomous execution parameters for the <span className="text-white">PL Genesis</span> ecosystem. 
+            Configure your autonomous execution parameters for the <span className="text-white">VAULT MIND</span> ecosystem. 
             Our AI engine will dynamically optimize your positions based on the selected risk profile below.
           </p>
         </div>

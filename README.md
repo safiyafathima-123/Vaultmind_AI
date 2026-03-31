@@ -1,6 +1,6 @@
-# 🚀 PL Genesis AI: Autonomous Multi-Agent Multi-Chain Strategist
+# 🚀 VAULT MIND: Autonomous Multi-Agent Multi-Chain Strategist
 
-**PL Genesis AI** is a next-generation DeFi execution engine that solves the "Black Box AI" problem. Built for the **PL Genesis** hackathon, it provides verifiable, autonomous yield optimization by anchoring every decision with a dual-proof transparency layer on **IPFS** and **NEAR Protocol**.
+**VAULT MIND** is a next-generation DeFi execution engine that solves the "Black Box AI" problem. Built for the **PL Genesis** hackathon, it provides verifiable, autonomous yield optimization by anchoring every decision with a dual-proof transparency layer on **IPFS** and **NEAR Protocol**.
 
 ---
 

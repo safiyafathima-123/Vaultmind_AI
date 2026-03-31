@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "PL Genesis AI | Autonomous Multi-Agent Strategist",
+  title: "VAULT MIND | Autonomous Multi-Agent Strategist",
   description: "Multi-agent DeFi strategist with on-chain transparency proofs anchored on NEAR Protocol.",
 };
 

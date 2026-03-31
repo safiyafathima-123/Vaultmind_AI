@@ -12,14 +12,14 @@ export default function AboutProject() {
       title: "About Us",
       subtitle: "The autonomous execution engine",
       icon: <Users className="w-5 h-5 text-neon-purple" />,
-      content: "PL Genesis AI is the premier autonomous execution layer for decentralized finance. Our multi-agent engine constantly monitors liquidity depth, volatility, and yield curves to ensure capital is always where it performs best. We bridge the gap between complex DeFi mechanics and effortless yield optimization, with all decisions anchored on-chain for total transparency."
+      content: "VAULT MIND is the premier autonomous execution layer for decentralized finance. Our multi-agent engine constantly monitors liquidity depth, volatility, and yield curves to ensure capital is always where it performs best. We bridge the gap between complex DeFi mechanics and effortless yield optimization, with all decisions anchored on-chain for total transparency."
     },
     {
       id: "features",
       title: "Features",
       subtitle: "Core platform capabilities",
       icon: <Zap className="w-5 h-5 text-neon-orange" />,
-      content: "The PL Genesis AI suite provides industrial-grade tools for sophisticated liquidity providers. Our core capabilities include Atomic Rebalancing via intelligent routing, real-time Neural Risk Forecasting to guard capital during volatility, and a multi-agent debate panel that identifies the most efficient yield opportunities. Every strategy is executed with deterministic precision, anchored on the NEAR blockchain and IPFS for permanent verifiability."
+      content: "The VAULT MIND suite provides industrial-grade tools for sophisticated liquidity providers. Our core capabilities include Atomic Rebalancing via intelligent routing, real-time Neural Risk Forecasting to guard capital during volatility, and a multi-agent debate panel that identifies the most efficient yield opportunities. Every strategy is executed with deterministic precision, anchored on the NEAR blockchain and IPFS for permanent verifiability."
     },
     {
       id: "architecture",

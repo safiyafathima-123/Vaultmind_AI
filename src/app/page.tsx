@@ -53,7 +53,7 @@ export default function HomePage() {
               <Activity className="w-6 h-6 text-neon-purple" />
             </div>
             <div className="flex flex-col">
-              <span className="font-black text-white text-xl tracking-tighter leading-none italic uppercase group-hover:neon-text-purple smooth-transition">PL Genesis AI</span>
+              <span className="font-black text-white text-xl tracking-tighter leading-none italic uppercase group-hover:neon-text-purple smooth-transition">VAULT MIND</span>
               <span className="text-[10px] text-neon-purple/50 font-black uppercase tracking-[0.4em] mt-1">Autonomous Strategist</span>
             </div>
           </div>
@@ -182,7 +182,7 @@ export default function HomePage() {
           <div className="flex flex-col items-center md:items-start">
              <div className="flex items-center gap-3 mb-2">
                 <div className="w-2 h-2 rounded-full bg-neon-purple animate-pulse" />
-                <span className="text-xs font-black text-white italic tracking-tighter uppercase">PL Genesis AI</span>
+                <span className="text-xs font-black text-white italic tracking-tighter uppercase">VAULT MIND</span>
              </div>
              <p className="text-[10px] text-gray-600 font-bold uppercase tracking-widest leading-loose text-center md:text-left">
                Autonomous multi-agent strategist anchored on permanent web infrastructure.

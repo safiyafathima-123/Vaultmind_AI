@@ -159,5 +159,5 @@ app.post("/api/ptb/execute", async (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`[PL Genesis AI] backend running on port ${PORT}`);
+  console.log(`[VAULT MIND] backend running on port ${PORT}`);
 });
