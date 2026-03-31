@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "One-Vantage AI | Autonomous Yield Strategist",
-  description: "Advanced autonomous strategist for OneChain liquidity optimization and yield farming.",
+  title: "PL Genesis AI | Autonomous Multi-Agent Strategist",
+  description: "Multi-agent DeFi strategist with on-chain transparency proofs anchored on NEAR Protocol.",
 };
 
 export default function RootLayout({

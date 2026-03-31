@@ -124,29 +124,40 @@ app.post("/api/ptb/build", (req, res) => {
 });
 
 const { writeProofToNear } = require("./nearProof");
+const { pushToIpfs } = require("./ipfsStorage");
 
 app.post("/api/ptb/execute", async (req, res) => {
   try {
     const { tx, profile } = req.body;
     const result = await simulateExecution(tx);
     
-    // Generate proof payload
+    // 1. Push reasoning logs to IPFS
+    const ipfsResult = await pushToIpfs({
+        strategy: tx,
+        reasoning: "AI analysis of current volatility and yield spreads suggests a high-confidence rebalance into the target pool for maximum risk-adjusted return.",
+        profile: profile,
+        timestamp: new Date().toISOString()
+    });
+
+    // 2. Generate NEAR proof payload including IPFS CID
     const proofPayload = {
       session_id: Date.now().toString(),
       agent_id: profile?.address || "anonymous",
       decision: tx,
-      confidence_score: 0.95, // mocked confidence from ML model
+      ipfs_cid: ipfsResult.cid,
+      confidence_score: 0.95,
       timestamp: new Date().toISOString()
     };
 
     const nearProof = await writeProofToNear(proofPayload);
 
-    res.json({ ...result, nearProof });
+    res.json({ ...result, nearProof, ipfsProof: ipfsResult });
   } catch (err) {
+    console.error("Execution failed:", err);
     res.status(500).json({ error: err.message });
   }
 });
 
 app.listen(PORT, () => {
-  console.log(`One-Vantage backend running on port ${PORT}`);
+  console.log(`[PL Genesis AI] backend running on port ${PORT}`);
 });

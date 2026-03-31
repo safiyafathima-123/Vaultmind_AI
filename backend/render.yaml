@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: one-vantage-backend
+    name: pl-genesis-backend
     env: node
     plan: free
     rootDir: backend
@@ -10,4 +10,4 @@ services:
       - key: PORT
         value: 10000
       - key: FRONTEND_URL
-        value: https://one-vantage.vercel.app # Change this after deployment
+        value: https://pl-genesis-ai.vercel.app # Change this after deployment

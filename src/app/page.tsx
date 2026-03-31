@@ -175,6 +175,52 @@ export default function HomePage() {
           </div>
         )}
       </div>
+
+      {/* Footer Branding */}
+      <footer className="mt-20 py-12 px-8 border-t border-white/5 relative bg-black/40">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
+          <div className="flex flex-col items-center md:items-start">
+             <div className="flex items-center gap-3 mb-2">
+                <div className="w-2 h-2 rounded-full bg-neon-purple animate-pulse" />
+                <span className="text-xs font-black text-white italic tracking-tighter uppercase">PL Genesis AI</span>
+             </div>
+             <p className="text-[10px] text-gray-600 font-bold uppercase tracking-widest leading-loose text-center md:text-left">
+               Autonomous multi-agent strategist anchored on permanent web infrastructure.
+             </p>
+          </div>
+
+          <div className="flex items-center gap-12">
+             <div className="flex flex-col items-center gap-3">
+                <span className="text-[9px] font-black text-gray-700 uppercase tracking-[0.3em]">Built for</span>
+                <div className="flex items-center gap-4 group">
+                   <div className="px-5 py-2.5 rounded-xl bg-white/5 border border-white/10 group-hover:border-neon-purple/50 smooth-transition flex items-center gap-3">
+                      <div className="w-5 h-5 rounded-md bg-neon-purple flex items-center justify-center text-[10px] font-black text-white">PL</div>
+                      <span className="text-[11px] font-black text-white tracking-widest uppercase italic">PL Genesis</span>
+                   </div>
+                </div>
+             </div>
+
+             <div className="flex flex-col items-center gap-3">
+                <span className="text-[9px] font-black text-gray-700 uppercase tracking-[0.3em]">Powered by</span>
+                <div className="flex items-center gap-4 group">
+                   <div className="px-5 py-2.5 rounded-xl bg-white/5 border border-white/10 group-hover:border-neon-orange/50 smooth-transition flex items-center gap-3 text-neon-orange">
+                      <div className="w-5 h-5 rounded-full border-2 border-neon-orange flex items-center justify-center">
+                         <div className="w-1.5 h-1.5 rounded-full bg-neon-orange" />
+                      </div>
+                      <span className="text-[11px] font-black text-white tracking-widest uppercase italic">NEAR</span>
+                   </div>
+                </div>
+             </div>
+          </div>
+
+          <div className="text-[9px] text-gray-700 font-bold uppercase tracking-widest">
+            © 2026 DECENTRALIZED AUTONOMY · v1.4.0
+          </div>
+        </div>
+        
+        {/* Subtle background glow */}
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-[1px] bg-gradient-to-r from-transparent via-neon-purple to-transparent opacity-20" />
+      </footer>
     </main>
   );
 }

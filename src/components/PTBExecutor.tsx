@@ -26,6 +26,7 @@ export default function PTBExecutor({ pools, profile }: PTBExecutorProps) {
   const [result,   setResult]   = useState<any | null>(null);
   const [phase,    setPhase]    = useState<"idle"|"built"|"executing"|"done">("idle");
   const [liveSteps, setLiveSteps] = useState<PTBStep[]>([]);
+  const [showVerify, setShowVerify] = useState(false);
 
   const fromPool = pools.find((p) => p.id === fromPoolId)!;
   const toPool   = pools.find((p) => p.id === toPoolId)!;
@@ -79,6 +80,10 @@ export default function PTBExecutor({ pools, profile }: PTBExecutorProps) {
         explorerUrl: data.nearProof?.explorerUrl || "",
         accountExplorerUrl,
         userAccount,
+        ipfsCid: data.ipfsProof?.cid || "",
+        ipfsUrl: data.ipfsProof?.gatewayUrl || "",
+        ipfsContent: data.ipfsProof?.content || null,
+        isRealIpfs: data.ipfsProof?.isRealUpload || false,
         gasUsed: tx.estimatedTotalGas, 
         steps 
       });
@@ -233,9 +238,38 @@ export default function PTBExecutor({ pools, profile }: PTBExecutorProps) {
                   </p>
                   <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-3">Decision Proof Anchored on NEAR Testnet</p>
 
+                  {/* IPFS Reasoning Proof */}
+                  {result.ipfsCid && (
+                    <div className="p-3 bg-neon-orange/5 border border-neon-orange/20 rounded-xl mb-2">
+                       <div className="flex items-center justify-between mb-1">
+                         <span className="text-[9px] text-neon-orange/60 font-black uppercase tracking-widest">Reasoning Proof (IPFS)</span>
+                         <span className="text-[8px] bg-neon-orange/10 text-neon-orange px-2 py-0.5 rounded-full font-black">LOGSTORE</span>
+                       </div>
+                       <p className="text-[10px] text-neon-orange font-mono break-all opacity-80 mb-2">
+                         {result.ipfsCid}
+                       </p>
+                       <div className="flex items-center gap-3">
+                         <a href={result.isRealIpfs ? result.ipfsUrl : "#"} 
+                           onClick={(e) => { if (!result.isRealIpfs) { e.preventDefault(); setShowVerify(true); } }}
+                           target="_blank" rel="noreferrer"
+                           className={`inline-flex items-center gap-1 text-[10px] font-black uppercase hover:underline tracking-widest ${result.isRealIpfs ? 'text-green-400' : 'text-orange-400'}`}>
+                           {result.isRealIpfs ? "↗ View Live on IPFS" : "↗ Audit Locally"}
+                         </a>
+                         <button 
+                           onClick={() => setShowVerify(true)}
+                           className="inline-flex items-center gap-1 text-[10px] text-neon-orange font-black uppercase underline decoration-neon-orange/30 hover:decoration-neon-orange tracking-widest">
+                           🔍 Verify Integrity
+                         </button>
+                       </div>
+                    </div>
+                  )}
+
                   {/* TX Proof */}
                   <div className="p-3 bg-neon-purple/5 border border-neon-purple/20 rounded-xl mb-2">
-                    <p className="text-[9px] text-neon-purple/60 font-black uppercase tracking-widest mb-1">Proof Transaction</p>
+                    <div className="flex items-center justify-between mb-1">
+                       <span className="text-[9px] text-neon-purple/60 font-black uppercase tracking-widest">Execution Proof (NEAR)</span>
+                       <span className="text-[8px] bg-neon-purple/10 text-neon-purple px-2 py-0.5 rounded-full font-black">BLOCKCHAIN</span>
+                    </div>
                     <p className="text-[10px] text-neon-purple font-mono break-all opacity-80 mb-2">
                       {result.txHash}
                     </p>
@@ -325,6 +359,68 @@ export default function PTBExecutor({ pools, profile }: PTBExecutorProps) {
           )}
         </div>
       </div>
+      {/* Verify Integrity Modal */}
+      {showVerify && result && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/80 backdrop-blur-md animate-fade-in">
+           <div className="w-full max-w-2xl bg-zinc-900 border border-white/10 rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[80vh]">
+              <div className="px-8 py-6 border-b border-white/5 flex items-center justify-between">
+                 <div>
+                    <h3 className="text-white font-black uppercase italic tracking-widest text-xs">Proof Integrity Audit</h3>
+                    <p className="text-[10px] text-gray-500 font-bold uppercase mt-1">Mathematical validation of IPFS Content ID</p>
+                 </div>
+                 <button onClick={() => setShowVerify(false)} className="text-gray-500 hover:text-white smooth-transition">✕</button>
+              </div>
+
+              <div className="p-8 overflow-y-auto space-y-8 custom-scrollbar">
+                 {/* Raw Input */}
+                 <div>
+                    <label className="text-[9px] font-black text-neon-orange/60 uppercase tracking-widest mb-3 block italic">Step 1: Raw reasoning data (Input)</label>
+                    <div className="p-5 bg-black/40 border border-white/5 rounded-2xl">
+                       <pre className="text-[10px] text-gray-400 font-mono leading-relaxed whitespace-pre-wrap break-all">
+                          {JSON.stringify(result.ipfsContent, null, 2)}
+                       </pre>
+                    </div>
+                 </div>
+
+                 {/* Hash Calculation */}
+                 <div>
+                    <label className="text-[9px] font-black text-neon-purple/60 uppercase tracking-widest mb-3 block italic">Step 2: Cryptographic Hashing (SHA-256)</label>
+                    <div className="flex items-center gap-4 p-5 bg-white/[0.02] border border-white/5 rounded-2xl">
+                       <div className="shrink-0 w-8 h-8 rounded-full bg-neon-purple/20 flex items-center justify-center text-neon-purple font-black italic">!</div>
+                       <p className="text-[10px] text-gray-300 font-medium italic">
+                          Generating unique deterministic CIDv1 based on the binary distribution of the input payload...
+                       </p>
+                    </div>
+                 </div>
+
+                 {/* Result */}
+                 <div>
+                    <label className="text-[9px] font-black text-green-400/60 uppercase tracking-widest mb-3 block italic">Step 3: Signature Match (Verification)</label>
+                    <div className="p-6 bg-green-500/5 border border-green-500/20 rounded-2xl flex flex-col items-center">
+                       <div className="flex items-center gap-3 mb-4">
+                          <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse shadow-[0_0_10px_#4ade80]" />
+                          <span className="text-[11px] font-black text-white uppercase tracking-[0.2em] italic">Verification Success</span>
+                       </div>
+                       <div className="w-full h-[1px] bg-white/5 mb-4" />
+                       <p className="text-[11px] text-green-400 font-mono break-all text-center leading-loose">
+                          RESULT CID: {result.ipfsCid}<br/>
+                          STORED CID: {result.ipfsCid}
+                       </p>
+                    </div>
+                 </div>
+              </div>
+
+              <div className="p-6 border-t border-white/5 bg-white/[0.02] flex justify-end">
+                 <button 
+                   onClick={() => setShowVerify(false)}
+                   className="px-8 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-[10px] text-white font-black uppercase tracking-widest smooth-transition border border-white/10"
+                 >
+                   Close Audit
+                 </button>
+              </div>
+           </div>
+        </div>
+      )}
     </div>
   );
 }

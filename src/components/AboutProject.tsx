@@ -12,21 +12,21 @@ export default function AboutProject() {
       title: "About Us",
       subtitle: "The autonomous execution engine",
       icon: <Users className="w-5 h-5 text-neon-purple" />,
-      content: "One-Vantage AI is the premier autonomous execution layer for the OneChain ecosystem. Our neural engine constantly monitors liquidity depth, volatility, and yield curves to ensure capital is always where it performs best. We bridge the gap between complex DeFi mechanics and effortless yield optimization."
+      content: "PL Genesis AI is the premier autonomous execution layer for decentralized finance. Our multi-agent engine constantly monitors liquidity depth, volatility, and yield curves to ensure capital is always where it performs best. We bridge the gap between complex DeFi mechanics and effortless yield optimization, with all decisions anchored on-chain for total transparency."
     },
     {
       id: "features",
       title: "Features",
       subtitle: "Core platform capabilities",
       icon: <Zap className="w-5 h-5 text-neon-orange" />,
-      content: "The One-Vantage AI suite provides industrial-grade tools for sophisticated liquidity providers. Our core capabilities include Atomic Batch Rebalancing via Programmable Transaction Blocks, real-time Neural Risk Forecasting to guard capital during volatility, and a sophisticated Market Radar that identifies the most efficient yield opportunities across all pools. Every strategy is executed with deterministic precision to maximize performance while minimizing protocol risk."
+      content: "The PL Genesis AI suite provides industrial-grade tools for sophisticated liquidity providers. Our core capabilities include Atomic Rebalancing via intelligent routing, real-time Neural Risk Forecasting to guard capital during volatility, and a multi-agent debate panel that identifies the most efficient yield opportunities. Every strategy is executed with deterministic precision, anchored on the NEAR blockchain and IPFS for permanent verifiability."
     },
     {
       id: "architecture",
       title: "Architecture",
       subtitle: "Platform infrastructure & APIs",
       icon: <Cpu className="w-5 h-5 text-neon-purple" />,
-      content: "Built on high-performance Sui Move smart contracts, our architecture is engineered for absolute transaction atomicity. By leveraging Programmable Transaction Blocks (PTBs), we eliminate the risk of partial execution and slippage associated with multi-transaction swaps. Our frontend layer maintains a direct, zero-latency connection to OneChain RPC nodes, ensuring the AI engine always operates on the most accurate and up-to-date ledger state available."
+      content: "Built on high-performance decentralized infrastructure, our architecture is engineered for absolute transparency. By leveraging NEAR Protocol for execution proofs and IPFS for reasoning logs, we eliminate the 'Black Box' problem of traditional AI. Our frontend layer maintains a direct connection to blockchain RPC nodes and IPFS gateways, ensuring that every AI decision is mathematically verifiable and eternally auditable."
     }
   ];
 
