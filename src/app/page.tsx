@@ -11,7 +11,7 @@ import StaticComparison from "@/components/StaticComparison";
 import SavingsTracker   from "@/components/SavingsTracker";
 import { UserProfile, loadSavedProfile } from "@/lib/types";
 import { useMarketData } from "@/lib/useMarketData";
-import { useCurrentAccount } from "@onelabs/dapp-kit";
+
 import { RefreshCw, Activity } from "lucide-react";
 
 // Tab definition
@@ -29,15 +29,15 @@ export default function HomePage() {
   const [profile,    setProfile]    = useState<UserProfile | null>(null);
   const [activeTab,  setActiveTab]  = useState<TabId>("overview");
   const { pools, isLoading, isRefreshing, lastUpdated, refresh } = useMarketData();
-  const currentAccount = useCurrentAccount();
+
 
   useEffect(() => {
     const saved = loadSavedProfile();
     if (saved) setProfile(saved);
   }, []);
 
-  // Derive display address preferring the real connected account address
-  const displayAddress = currentAccount?.address ?? profile?.address ?? "";
+  // Derive display address
+  const displayAddress = profile?.address ?? "";
 
   return (
     <main className="min-h-screen bg-black relative overflow-hidden text-white">
@@ -53,7 +53,7 @@ export default function HomePage() {
               <Activity className="w-6 h-6 text-neon-purple" />
             </div>
             <div className="flex flex-col">
-              <span className="font-black text-white text-xl tracking-tighter leading-none italic uppercase group-hover:neon-text-purple smooth-transition">One-Vantage AI</span>
+              <span className="font-black text-white text-xl tracking-tighter leading-none italic uppercase group-hover:neon-text-purple smooth-transition">PL Genesis AI</span>
               <span className="text-[10px] text-neon-purple/50 font-black uppercase tracking-[0.4em] mt-1">Autonomous Strategist</span>
             </div>
           </div>
@@ -105,7 +105,7 @@ export default function HomePage() {
                <span className="neon-text-purple">Unleashed.</span>
              </h1>
              <p className="text-gray-400 text-lg font-medium leading-relaxed mb-12 max-w-lg mx-auto">
-               The world's most advanced autonomous strategist for <span className="text-white italic">OneChain</span> liquidity optimization.
+               The world's most advanced autonomous strategist for <span className="text-white italic">PL Genesis</span> liquidity optimization.
              </p>
 
           </div>
@@ -126,7 +126,7 @@ export default function HomePage() {
                     { 
                       label: "Wallet ID", 
                       value: displayAddress ? `${displayAddress.slice(0,6)}...${displayAddress.slice(-4)}` : "Not Linked", 
-                      extra: currentAccount ? "Dev Burner Active" : "Manual Portal" 
+                      extra: displayAddress ? "Neural Account" : "Manual Portal" 
                     },
                     { label: "AI Behavior", value: profile.riskLevel, extra: "Dynamic Pivot" },
                     { label: "Safe Haven",   value: profile.preferStablecoins ? "Enabled" : "Off", extra: "Auto-Stable" },
@@ -170,7 +170,7 @@ export default function HomePage() {
             </div>
             <div className="text-center">
                <p className="text-[10px] font-black text-white uppercase tracking-[0.5em] animate-pulse">Initializing Neural Link</p>
-               <p className="text-[10px] text-neon-purple font-black mt-2 italic uppercase">Synching OneChain Nodes</p>
+               <p className="text-[10px] text-neon-purple font-black mt-2 italic uppercase">Synching PL Genesis Nodes</p>
             </div>
           </div>
         )}

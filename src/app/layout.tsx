@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { Providers } from "@/components/Providers";
-import "@onelabs/dapp-kit/dist/index.css";
+
 import "./globals.css";
 
 const geistSans = Geist({
@@ -27,9 +26,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
       <body className="min-h-full bg-black">
-        <Providers>
-          {children}
-        </Providers>
+        {children}
       </body>
     </html>
   );

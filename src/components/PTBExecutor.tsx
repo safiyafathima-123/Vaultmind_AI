@@ -3,9 +3,7 @@
 
 import { useState } from "react";
 import { Pool, UserProfile, PTBTransaction, PTBResult, PTBStep } from "@/lib/types";
-import { buildPTB, simulateExecution, stepLabel } from "@/lib/ptbBuilder";
-import { useSignAndExecuteTransaction, useCurrentAccount } from "@onelabs/dapp-kit";
-import { Transaction } from "@mysten/sui/transactions";
+import { buildPTB, stepLabel } from "@/lib/ptbBuilder";
 
 interface PTBExecutorProps {
   pools: Pool[];
@@ -25,12 +23,9 @@ export default function PTBExecutor({ pools, profile }: PTBExecutorProps) {
   const [amount,     setAmount]     = useState(1000);
 
   const [tx,       setTx]       = useState<PTBTransaction | null>(null);
-  const [result,   setResult]   = useState<PTBResult | null>(null);
+  const [result,   setResult]   = useState<any | null>(null);
   const [phase,    setPhase]    = useState<"idle"|"built"|"executing"|"done">("idle");
   const [liveSteps, setLiveSteps] = useState<PTBStep[]>([]);
-
-  const currentAccount = useCurrentAccount();
-  const { mutateAsync: signAndExecuteTransaction } = useSignAndExecuteTransaction();
 
   const fromPool = pools.find((p) => p.id === fromPoolId)!;
   const toPool   = pools.find((p) => p.id === toPoolId)!;
@@ -49,23 +44,21 @@ export default function PTBExecutor({ pools, profile }: PTBExecutorProps) {
   async function handleExecute() {
     if (!tx) return;
 
-    if (!currentAccount) {
-      alert("Manual Identity Portal is read-only. Please connect a Burner Wallet to execute actual Testnet transactions!");
-      return;
-    }
-
     setPhase("executing");
     setResult(null);
 
     try {
-      const txb = new Transaction();
-      // Execute a real, safe testnet transaction: Split 1 MIST from gas and send it to yourself!
-      const [coin] = txb.splitCoins(txb.gas, [txb.pure.u64(1)]);
-      txb.transferObjects([coin], txb.pure.address(currentAccount.address));
-
-      const response = await signAndExecuteTransaction({
-        transaction: txb as any,
+      // Direct pass-through to backend backend to run AI strategy and log to logic and NEAR
+      const res = await fetch("http://localhost:5000/api/ptb/execute", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tx, profile }),
       });
+      const data = await res.json();
+
+      if (!res.ok || data.error) {
+        throw new Error(data.error || "Failed to execute transaction");
+      }
 
       // Animate simulated steps locally to look cool, then show the real tx hash
       const steps = [...tx.steps];
@@ -75,9 +68,17 @@ export default function PTBExecutor({ pools, profile }: PTBExecutorProps) {
         setLiveSteps([...steps]);
       }
 
+      const userAccount = profile?.address || "";
+      const accountExplorerUrl = userAccount
+        ? `https://testnet.nearblocks.io/address/${userAccount}`
+        : "";
+
       setResult({ 
-        success: true, 
-        txHash: response.digest, 
+        success: data.success, 
+        txHash: data.nearProof?.txHash || data.txHash || "mock_hash", 
+        explorerUrl: data.nearProof?.explorerUrl || "",
+        accountExplorerUrl,
+        userAccount,
         gasUsed: tx.estimatedTotalGas, 
         steps 
       });
@@ -105,7 +106,7 @@ export default function PTBExecutor({ pools, profile }: PTBExecutorProps) {
     <div className="glass-dark rounded-3xl overflow-hidden smooth-transition border border-white/5 shadow-2xl">
       {/* Header */}
       <div className="px-8 py-6 border-b border-white/5 bg-white/[0.02]">
-        <h3 className="font-black text-white text-xs uppercase tracking-[0.2em] italic">Atomic PTB Rebalancer</h3>
+        <h3 className="font-black text-white text-xs uppercase tracking-[0.2em] italic">Atomic Execution Block</h3>
         <p className="text-[10px] text-gray-500 font-bold mt-1 uppercase tracking-tighter">
           Synchronous Liquidity Migration Node
         </p>
@@ -214,7 +215,7 @@ export default function PTBExecutor({ pools, profile }: PTBExecutorProps) {
           </div>
         )}
 
-        {/* Result banner */}
+        {/* Result banner w/ NEAR link */}
         {result && (
           <div className={`rounded-2xl p-6 border shadow-2xl ${
             result.success
@@ -226,15 +227,40 @@ export default function PTBExecutor({ pools, profile }: PTBExecutorProps) {
                 <div className="w-10 h-10 rounded-full bg-neon-purple/20 flex items-center justify-center border border-neon-purple/40 shrink-0">
                    <div className="w-2 h-2 rounded-full bg-neon-purple shadow-[0_0_10px_var(--neon-purple)]" />
                 </div>
-                <div>
-                  <p className="text-xs font-black text-white uppercase tracking-widest mb-2 italic">
+                <div className="flex-1">
+                  <p className="text-xs font-black text-white uppercase tracking-widest mb-1 italic">
                     REBALANCE SUCCESSFUL
                   </p>
-                  <p className="text-[10px] text-neon-purple font-mono break-all opacity-80">
-                    TX: {result.txHash}
-                  </p>
-                  <p className="text-[9px] font-black text-gray-500 mt-3 uppercase tracking-tighter">
-                    Gas Optimized: ${result.gasUsed} · Block Verified
+                  <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-3">Decision Proof Anchored on NEAR Testnet</p>
+
+                  {/* TX Proof */}
+                  <div className="p-3 bg-neon-purple/5 border border-neon-purple/20 rounded-xl mb-2">
+                    <p className="text-[9px] text-neon-purple/60 font-black uppercase tracking-widest mb-1">Proof Transaction</p>
+                    <p className="text-[10px] text-neon-purple font-mono break-all opacity-80 mb-2">
+                      {result.txHash}
+                    </p>
+                    {result.explorerUrl && (
+                      <a href={result.explorerUrl} target="_blank" rel="noreferrer"
+                        className="inline-flex items-center gap-1 text-[10px] text-cyan-400 font-black uppercase hover:underline tracking-widest">
+                        ↗ View Transaction on NearBlocks
+                      </a>
+                    )}
+                  </div>
+
+                  {/* User Account Link */}
+                  {result.accountExplorerUrl && (
+                    <div className="p-3 bg-white/[0.03] border border-white/10 rounded-xl mb-2">
+                      <p className="text-[9px] text-gray-500 font-black uppercase tracking-widest mb-1">Your NEAR Account</p>
+                      <p className="text-[10px] text-white font-mono opacity-80 mb-2">{result.userAccount}</p>
+                      <a href={result.accountExplorerUrl} target="_blank" rel="noreferrer"
+                        className="inline-flex items-center gap-1 text-[10px] text-green-400 font-black uppercase hover:underline tracking-widest">
+                        ↗ View Account on NearBlocks
+                      </a>
+                    </div>
+                  )}
+
+                  <p className="text-[9px] font-black text-gray-500 mt-2 uppercase tracking-tighter">
+                    Gas Optimized: ${result.gasUsed} · Anchored On-Chain
                   </p>
                 </div>
               </div>
@@ -265,7 +291,7 @@ export default function PTBExecutor({ pools, profile }: PTBExecutorProps) {
               disabled={!fromPool || !toPool || fromPool?.id === toPool?.id}
               className="flex-1 py-4 bg-neon-purple hover:bg-neon-purple/90 disabled:bg-purple-900/40 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl transition-all shadow-[0_0_20px_rgba(191,0,255,0.2)] active:scale-95"
             >
-              BUILD PTB BLOCK
+              BUILD EXECUTION BLOCK
             </button>
           )}
           {phase === "built" && (
@@ -274,7 +300,7 @@ export default function PTBExecutor({ pools, profile }: PTBExecutorProps) {
                 onClick={handleExecute}
                 className="flex-1 py-4 bg-neon-orange hover:bg-neon-orange/90 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl transition-all shadow-[0_0_20px_rgba(255,94,0,0.2)] active:scale-95"
               >
-                EXECUTE ATOMICALLY
+                EXECUTE STRATEGY
               </button>
               <button
                 onClick={handleReset}
@@ -286,7 +312,7 @@ export default function PTBExecutor({ pools, profile }: PTBExecutorProps) {
           )}
           {phase === "executing" && (
             <button disabled className="flex-1 py-4 bg-neon-purple/40 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl animate-pulse cursor-wait">
-              INJECTING TO CHAIN...
+              INJECTING PROOF TO NEAR...
             </button>
           )}
           {phase === "done" && (

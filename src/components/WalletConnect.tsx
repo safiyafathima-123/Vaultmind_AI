@@ -3,37 +3,25 @@
 import { useState, useEffect } from "react";
 import { UserProfile, RiskLevel, loadSavedProfile } from "@/lib/types";
 import { LogOut, Wallet, Shield, Zap, TrendingUp, X, Sparkles } from "lucide-react";
-import { ConnectButton, useCurrentAccount, useDisconnectWallet } from "@onelabs/dapp-kit";
 
-// Props this component receives from its parent
 interface WalletConnectProps {
   onProfileReady: (profile: UserProfile | null) => void;
 }
 
 export default function WalletConnect({ onProfileReady }: WalletConnectProps) {
-  const currentAccount = useCurrentAccount();
-  const { mutate: disconnectReal } = useDisconnectWallet();
-
-  // Local state for our mock connection
-  const [customAddress, setCustomAddress] = useState<string | null>(null);
-  const [showOptions, setShowOptions] = useState(false);
+  const [activeAddress, setActiveAddress] = useState<string | null>(null);
   const [showInputModal, setShowInputModal] = useState(false);
   const [inputValue, setInputValue] = useState("");
-
   const [showProfileSetup, setShowProfileSetup] = useState(false);
 
-  // Risk profile form state
   const [riskLevel, setRiskLevel] = useState<RiskLevel>("medium");
   const [preferStable, setPreferStable] = useState(true);
   const [maxRebalance, setMaxRebalance] = useState(80);
 
-  const activeAddress = currentAccount?.address || customAddress;
-
-  // Initialize from saved profile
   useEffect(() => {
     const saved = loadSavedProfile();
     if (saved?.address) {
-      if (!currentAccount?.address) setCustomAddress(saved.address);
+      setActiveAddress(saved.address);
       setRiskLevel(saved.riskLevel);
       setPreferStable(saved.preferStablecoins);
       setMaxRebalance(saved.maxRebalancePercent);
@@ -44,44 +32,28 @@ export default function WalletConnect({ onProfileReady }: WalletConnectProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Handle connection changes for NEW addresses
-  useEffect(() => {
-    if (activeAddress) {
+  function handleConnectSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (inputValue.trim()) {
+      setActiveAddress(inputValue.trim());
+      setShowInputModal(false);
+      
       const saved = loadSavedProfile();
-      if (saved && saved.address === activeAddress) {
+      if (saved && saved.address === inputValue.trim()) {
         onProfileReady(saved);
       } else {
         setShowProfileSetup(true);
       }
-      setShowOptions(false);
-      setShowInputModal(false);
-    } else {
-      setShowProfileSetup(false);
-      onProfileReady(null);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeAddress]);
-
-  function handleConnectSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (inputValue.trim()) {
-      setCustomAddress(inputValue.trim());
-      setShowInputModal(false);
     }
   }
 
-  // Handle Disconnect
   function handleDisconnect() {
-    if (currentAccount) {
-       disconnectReal();
-    }
-    setCustomAddress(null);
+    setActiveAddress(null);
     setShowProfileSetup(false);
     onProfileReady(null);
-    localStorage.removeItem("oneVantageProfile"); // Clear saved profile
+    localStorage.removeItem("oneVantageProfile");
   }
 
-  // Called when user saves their risk profile
   function handleSaveProfile() {
     if (!activeAddress) return;
 
@@ -97,16 +69,14 @@ export default function WalletConnect({ onProfileReady }: WalletConnectProps) {
     setShowProfileSetup(false);
   }
 
-  // Format helper
   const formatAddress = (addr: string | null) => 
     addr && addr.length > 10 ? `${addr.slice(0, 6)}...${addr.slice(-4)}` : addr || "";
 
-  // ── UI: Not connected yet ──
-  if (!activeAddress && !showOptions && !showInputModal) {
+  if (!activeAddress && !showInputModal) {
     return (
       <div className="flex flex-col items-center">
         <button 
-          onClick={() => setShowOptions(true)}
+          onClick={() => setShowInputModal(true)}
           className="group relative flex items-center gap-4 pl-4 pr-8 py-3 bg-black rounded-2xl smooth-transition neon-border-purple hover-glow-purple overflow-hidden text-left"
         >
           <div className="absolute inset-0 bg-gradient-to-r from-neon-purple/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -115,78 +85,14 @@ export default function WalletConnect({ onProfileReady }: WalletConnectProps) {
             <Wallet className="w-5 h-5 text-neon-purple animate-pulse" />
           </div>
           <div className="relative flex flex-col items-start text-left">
-            <span className="text-sm font-black uppercase tracking-tighter text-white">Connect OneWallet</span>
-            <span className="text-[10px] font-bold text-neon-purple/60 group-hover:text-neon-purple smooth-transition">One-Access Connection Portal</span>
+            <span className="text-sm font-black uppercase tracking-tighter text-white">Initialize Session</span>
+            <span className="text-[10px] font-bold text-neon-purple/60 group-hover:text-neon-purple smooth-transition">Enter your NEAR testnet account ID</span>
           </div>
         </button>
       </div>
     );
   }
 
-  // ── UI: Connection Portal Choice Modal ──
-  if (!activeAddress && showOptions) {
-    return (
-      <div className="p-8 glass-dark rounded-3xl smooth-transition w-[420px] mx-auto neon-border-purple relative shadow-[0_0_50px_rgba(0,0,0,0.8)] z-50">
-        <button 
-          onClick={() => setShowOptions(false)}
-          className="absolute top-4 right-4 p-2 text-gray-500 hover:text-neon-orange smooth-transition rounded-xl hover:bg-neon-orange/10"
-        >
-          <X className="w-5 h-5" />
-        </button>
-        <div className="flex flex-col items-center text-center mb-10 pt-4">
-          <div className="w-14 h-14 rounded-2xl bg-neon-purple/10 flex items-center justify-center border border-neon-purple/30 shadow-[0_0_20px_rgba(191,0,255,0.2)] mb-4">
-            <Zap className="w-7 h-7 text-neon-purple animate-pulse" />
-          </div>
-          <h3 className="text-2xl font-black text-white italic tracking-tighter uppercase">Connect Portal</h3>
-          <p className="text-[10px] text-neon-purple font-bold tracking-widest uppercase mt-1 opacity-60">Select Neural Uplink Method</p>
-        </div>
-
-        <div className="space-y-4">
-          {/* Option 1: Manual Identity */}
-          <button 
-            onClick={() => {
-              setShowOptions(false);
-              setShowInputModal(true);
-            }}
-            className="w-full flex items-center gap-5 p-5 bg-black/40 border border-white/5 rounded-2xl hover:border-neon-purple hover:bg-neon-purple/5 smooth-transition group text-left"
-          >
-            <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center group-hover:bg-neon-purple/20 smooth-transition border border-white/5">
-              <Shield className="w-5 h-5 text-gray-500 group-hover:text-neon-purple" />
-            </div>
-            <div>
-               <p className="text-sm font-black text-white uppercase tracking-tight">Manual Identity</p>
-               <p className="text-[10px] text-gray-600 font-bold uppercase transition-colors group-hover:text-neon-purple/60">Link via Address/ID Only</p>
-            </div>
-          </button>
-
-          {/* Option 2: Live Testnet Wallet (Official Dapp Kit) */}
-          <div className="relative group">
-            <div className="absolute inset-x-0 bottom-0 top-0 opacity-0 group-hover:opacity-100 smooth-transition pointer-events-none rounded-2xl border border-neon-orange/40 shadow-[0_0_20px_rgba(255,94,0,0.1)]" />
-            <ConnectButton 
-              className="w-full !flex !items-center !gap-5 !p-5 !bg-black/60 !border !border-white/5 !rounded-2xl !smooth-transition !text-left !h-auto !justify-start !font-black !text-white"
-              connectText={
-                <div className="flex items-center gap-5 w-full">
-                  <div className="w-10 h-10 rounded-xl bg-neon-orange/10 flex items-center justify-center border border-neon-orange/20">
-                    <TrendingUp className="w-5 h-5 text-neon-orange" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-black text-white uppercase tracking-tight">Live Testnet Node</p>
-                    <p className="text-[10px] text-neon-orange font-bold uppercase opacity-80">Full Transaction Signing</p>
-                  </div>
-                </div>
-              }
-            />
-          </div>
-        </div>
-
-        <p className="text-center text-[9px] text-gray-600 font-black uppercase tracking-[0.2em] mt-8 opacity-40 italic">
-          Neural Security Protocol V2.4 Active
-        </p>
-      </div>
-    );
-  }
-
-  // ── UI: Wallet ID Input Modal ──
   if (!activeAddress && showInputModal) {
     return (
       <div className="p-8 glass-dark rounded-3xl smooth-transition w-[380px] mx-auto neon-border-purple relative shadow-[0_0_50px_rgba(0,0,0,0.8)] z-50">
@@ -201,22 +107,23 @@ export default function WalletConnect({ onProfileReady }: WalletConnectProps) {
             <Wallet className="w-5 h-5 text-neon-purple" />
           </div>
           <div>
-            <h3 className="text-lg font-black text-white italic tracking-tighter uppercase">Link Wallet</h3>
+            <h3 className="text-lg font-black text-white italic tracking-tighter uppercase">Link Account</h3>
             <p className="text-[10px] text-neon-purple font-bold tracking-widest uppercase mt-0.5">Manual Identity Verification</p>
           </div>
         </div>
         <form onSubmit={handleConnectSubmit} className="space-y-6">
           <div>
-            <label className="block text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] mb-3">Wallet ID / Address</label>
+            <label className="block text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] mb-3">NEAR Account ID</label>
             <input 
               type="text" 
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              placeholder="Enter 0x..."
+              placeholder="yourname.testnet"
               className="w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-4 text-sm text-white focus:outline-none focus:border-neon-purple focus:shadow-[0_0_20px_rgba(191,0,255,0.2)] smooth-transition font-mono placeholder:text-gray-700"
               autoFocus
               required
             />
+            <p className="text-[10px] text-gray-600 mt-2 font-bold">e.g. <span className="text-neon-purple/60">safiya2.testnet</span> — your NEAR testnet wallet ID</p>
           </div>
           <button
             type="submit"
@@ -229,11 +136,9 @@ export default function WalletConnect({ onProfileReady }: WalletConnectProps) {
     );
   }
 
-  // ── UI: Risk profile setup ──
   if (showProfileSetup) {
     return (
       <div className="p-12 glass-dark rounded-[3rem] smooth-transition max-w-5xl mx-auto neon-border-purple relative z-50 shadow-[0_0_80px_rgba(0,0,0,0.9)] overflow-hidden">
-        {/* Decorative background glow */}
         <div className="absolute top-0 right-0 w-64 h-64 bg-neon-purple/5 blur-[80px] -mr-32 -mt-32 pointer-events-none" />
         
         <div className="flex items-center justify-between mb-12 relative z-10">
@@ -254,13 +159,12 @@ export default function WalletConnect({ onProfileReady }: WalletConnectProps) {
         <div className="mb-12 relative z-10">
           <h2 className="text-5xl font-black text-white italic tracking-tighter mb-4 uppercase">Neural Strategy <span className="neon-text-purple">Uplink.</span></h2>
           <p className="text-base text-gray-400 max-w-2xl leading-relaxed font-medium">
-            Configure your autonomous execution parameters for the <span className="text-white">OneChain</span> ecosystem. 
+            Configure your autonomous execution parameters for the <span className="text-white">PL Genesis</span> ecosystem. 
             Our AI engine will dynamically optimize your positions based on the selected risk profile below.
           </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 relative z-10">
-          {/* LEFT: Strategy Profile */}
           <div className="space-y-8">
             <div className="flex items-center gap-3 mb-2">
                <Shield className="w-4 h-4 text-neon-purple" />
@@ -300,7 +204,6 @@ export default function WalletConnect({ onProfileReady }: WalletConnectProps) {
             </div>
           </div>
 
-          {/* RIGHT: Autonomous Controls */}
           <div className="space-y-12">
             <div>
               <div className="flex items-center gap-3 mb-8">
@@ -308,7 +211,6 @@ export default function WalletConnect({ onProfileReady }: WalletConnectProps) {
                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.4em]">Execution Constraints</label>
               </div>
               
-              {/* Safety net toggle card */}
               <div className={`p-8 rounded-[2rem] border smooth-transition flex items-center justify-between mb-8
                 ${preferStable ? 'bg-neon-purple/5 border-neon-purple/30 shadow-[0_0_30px_rgba(191,0,255,0.05)]' : 'bg-black/40 border-white/5 opacity-60'}
               `}>
@@ -337,7 +239,6 @@ export default function WalletConnect({ onProfileReady }: WalletConnectProps) {
                 </button>
               </div>
 
-              {/* Slider card */}
               <div className="p-8 rounded-[2rem] bg-black/40 border border-white/5">
                 <div className="flex justify-between items-center mb-6">
                   <div className="flex flex-col">
@@ -383,7 +284,6 @@ export default function WalletConnect({ onProfileReady }: WalletConnectProps) {
     );
   }
 
-  // ── UI: Connected & profile saved ──
   return (
     <div className="flex items-center gap-5 pl-5 pr-3 py-2.5 bg-black rounded-2xl smooth-transition neon-border-purple hover-glow-purple group">
       <div className="flex items-center gap-3">

@@ -123,11 +123,25 @@ app.post("/api/ptb/build", (req, res) => {
   }
 });
 
+const { writeProofToNear } = require("./nearProof");
+
 app.post("/api/ptb/execute", async (req, res) => {
   try {
-    const { tx } = req.body;
+    const { tx, profile } = req.body;
     const result = await simulateExecution(tx);
-    res.json(result);
+    
+    // Generate proof payload
+    const proofPayload = {
+      session_id: Date.now().toString(),
+      agent_id: profile?.address || "anonymous",
+      decision: tx,
+      confidence_score: 0.95, // mocked confidence from ML model
+      timestamp: new Date().toISOString()
+    };
+
+    const nearProof = await writeProofToNear(proofPayload);
+
+    res.json({ ...result, nearProof });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
