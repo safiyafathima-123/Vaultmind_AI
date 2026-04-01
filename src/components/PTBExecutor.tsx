@@ -49,8 +49,8 @@ export default function PTBExecutor({ pools, profile }: PTBExecutorProps) {
     setResult(null);
 
     try {
-      // Direct pass-through to backend backend to run AI strategy and log to logic and NEAR
-      const res = await fetch("http://localhost:5000/api/ptb/execute", {
+      // Direct pass-through to Next.js API route
+      const res = await fetch(`/api/ptb/execute`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ tx, profile }),

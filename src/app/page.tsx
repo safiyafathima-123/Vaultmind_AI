@@ -11,6 +11,7 @@ import StaticComparison from "@/components/StaticComparison";
 import SavingsTracker   from "@/components/SavingsTracker";
 import { UserProfile, loadSavedProfile } from "@/lib/types";
 import { useMarketData } from "@/lib/useMarketData";
+import ChainAbstractionPanel from "@/components/ChainAbstractionPanel";
 
 import { RefreshCw, Activity } from "lucide-react";
 
@@ -105,7 +106,7 @@ export default function HomePage() {
                <span className="neon-text-purple">Unleashed.</span>
              </h1>
              <p className="text-gray-400 text-lg font-medium leading-relaxed mb-12 max-w-lg mx-auto">
-               The world's most advanced autonomous strategist for <span className="text-white italic">PL Genesis</span> liquidity optimization.
+               The world's most advanced autonomous strategist for <span className="text-white italic">DeFi</span> liquidity optimization.
              </p>
 
           </div>
@@ -144,6 +145,7 @@ export default function HomePage() {
 
                 {/* Main components */}
                 <div className="space-y-12">
+                  <ChainAbstractionPanel />
                   <PoolTable />
                   <SavingsTracker pools={pools} profile={profile} />
                 </div>
@@ -170,7 +172,7 @@ export default function HomePage() {
             </div>
             <div className="text-center">
                <p className="text-[10px] font-black text-white uppercase tracking-[0.5em] animate-pulse">Initializing Neural Link</p>
-               <p className="text-[10px] text-neon-purple font-black mt-2 italic uppercase">Synching PL Genesis Nodes</p>
+               <p className="text-[10px] text-neon-purple font-black mt-2 italic uppercase">Synching Network Nodes</p>
             </div>
           </div>
         )}
@@ -194,8 +196,8 @@ export default function HomePage() {
                 <span className="text-[9px] font-black text-gray-700 uppercase tracking-[0.3em]">Built for</span>
                 <div className="flex items-center gap-4 group">
                    <div className="px-5 py-2.5 rounded-xl bg-white/5 border border-white/10 group-hover:border-neon-purple/50 smooth-transition flex items-center gap-3">
-                      <div className="w-5 h-5 rounded-md bg-neon-purple flex items-center justify-center text-[10px] font-black text-white">PL</div>
-                      <span className="text-[11px] font-black text-white tracking-widest uppercase italic">PL Genesis</span>
+                      <div className="w-5 h-5 rounded-md bg-neon-purple flex items-center justify-center text-[10px] font-black text-white">W3</div>
+                      <span className="text-[11px] font-black text-white tracking-widest uppercase italic">Web3 Ecosystem</span>
                    </div>
                 </div>
              </div>
