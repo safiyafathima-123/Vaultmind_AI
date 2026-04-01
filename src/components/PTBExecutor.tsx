@@ -50,11 +50,12 @@ export default function PTBExecutor({ pools, profile }: PTBExecutorProps) {
 
     try {
       // Direct pass-through to Next.js API route
-      const res = await fetch(`/api/ptb/execute`, {
+      const res = await fetch(`/api/action/ignite`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ tx, profile }),
       });
+      console.log("Response status:", res.status);
       const data = await res.json();
 
       if (!res.ok || data.error) {
